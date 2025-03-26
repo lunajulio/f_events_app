@@ -11,7 +11,7 @@ class EventApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Conference App',
+      title: 'Event App',
       theme: ThemeData(primarySwatch: Colors.indigo),
       home: const HomePage(),
       debugShowCheckedModeBanner: false,
