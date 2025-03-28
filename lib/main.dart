@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pages/homepage.dart';
+import 'pages/main_page.dart';
 
 void main() {
   runApp(const EventApp());
@@ -13,8 +13,8 @@ class EventApp extends StatelessWidget {
     return MaterialApp(
       title: 'Event App',
       theme: ThemeData(primarySwatch: Colors.indigo),
-      home: const HomePage(),
+      home: const MainPage(),
       debugShowCheckedModeBanner: false,
     );
   }
-}
+} 
