@@ -2,6 +2,7 @@ import 'package:event_app/controllers/event_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/event.dart';
+import '../widget/reviewcard.dart';
 
 class PastEventDetailsPage extends StatelessWidget {
   final Event event;
@@ -161,7 +162,7 @@ class PastEventDetailsPage extends StatelessWidget {
                     onPressed: () {},
                     child: Text(
                       'Read More...',
-                      style: TextStyle(color: Colors.blue),
+                      style: TextStyle(color: const Color.fromARGB(255, 2, 14, 144)),
                     ),
                   ),
 
@@ -195,7 +196,7 @@ class PastEventDetailsPage extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              '4.8',
+                              event.rating.toString(),
                               style: TextStyle(
                                 fontSize: 32,
                                 fontWeight: FontWeight.bold,
@@ -232,21 +233,41 @@ class PastEventDetailsPage extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 16),
-                  Container(
-                    padding: EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(12),
+                  if (event.reviews.isNotEmpty)
+                    Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Reviews',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          SizedBox(
+                            height: 140, // Ajusta esta altura según necesites
+                            child: ListView(
+                              scrollDirection: Axis.horizontal,
+                              physics: ClampingScrollPhysics(),
+                              children: event.reviews.map((review) => 
+                                ReviewCard(review: review)
+                              ).toList(),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Text(
-                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                  ),
                   SizedBox(height: 16),
                   
                   // Botón de añadir reseña
-                  Container(
+                  SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {},
@@ -257,6 +278,7 @@ class PastEventDetailsPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
+
                       child: Text(
                         'Añadir reseña',
                         style: TextStyle(

@@ -12,10 +12,10 @@ class EventCard extends StatelessWidget {
   final EventController controller = Get.find();
 
   EventCard({
-    Key? key,
+    super.key,
     required this.event,
     this.isMainCard = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

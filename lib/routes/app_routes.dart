@@ -3,6 +3,7 @@ import '../pages/homepage.dart';
 import '../pages/my_events.dart';
 import '../pages/event_details.dart';
 import '../pages/all_events.dart';
+import '../pages/subscription_success.dart';
 
 class AppRoutes {
   // Define las rutas como constantes estáticas
@@ -10,6 +11,7 @@ class AppRoutes {
   static const MY_EVENTS = '/my-events';
   static const EVENT_DETAILS = '/event-details';
   static const ALL_EVENTS = '/all-events';
+  static const SUBSCRIPTION = '/subscription-success';
 
   static final pages = [
     GetPage(
@@ -27,6 +29,10 @@ class AppRoutes {
     GetPage(
       name: ALL_EVENTS,
       page: () => AllEventsPage(),
+    ),
+    GetPage(
+      name: SUBSCRIPTION,
+      page: () => SubscriptionSuccess(),
     ),
   ];
 }

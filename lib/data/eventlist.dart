@@ -1,4 +1,3 @@
-import '../controllers/event_controller.dart';
 import 'package:event_app/models/event.dart';
 
 List<Event> EventsList = [

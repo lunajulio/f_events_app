@@ -2,6 +2,7 @@ import 'package:event_app/controllers/event_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/event.dart';
+import 'subscription_success.dart';
 
 class EventDetailsPage extends StatelessWidget {
   final Event event;
@@ -68,7 +69,7 @@ class EventDetailsPage extends StatelessWidget {
                         child: Column(
                           children: [
                             Text(
-                              '15',
+                              event.day,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 20,
@@ -76,7 +77,7 @@ class EventDetailsPage extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              'nov',
+                              event.month.length > 3 ? event.month.substring(0, 3) : event.month,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -170,28 +171,39 @@ class EventDetailsPage extends StatelessWidget {
                   SizedBox(height: 20),
 
                   // Botón de suscripción
-                  Obx(() => Container(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => controller.toggleSubscription(event),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pink,
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Text(
-                        controller.isSubscribed(event) 
-                            ? 'Unsubscribe' 
-                            : 'Subscribe',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                  // Modifica el botón de suscripción en EventDetailsPage
+                Obx(() => SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (!controller.isSubscribed(event)) {
+                        controller.toggleSubscription(event);
+                        Get.to(() => SubscriptionSuccess(), 
+                          transition: Transition.fadeIn
+                        );
+                      } else {
+                        controller.toggleSubscription(event);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pink,
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                  )),
+                    child: Text(
+                      controller.isSubscribed(event) 
+                          ? 'Unsubscribe' 
+                          : 'Subscribe',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                )),
                 ],
               ),
             ),

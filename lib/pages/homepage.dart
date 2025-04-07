@@ -9,6 +9,8 @@ class HomePage extends StatelessWidget {
   final EventController controller = Get.find();
   final NavigationController navigationController = Get.find();
 
+  HomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
