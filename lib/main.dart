@@ -1,22 +1,31 @@
-import 'package:event_app/pages/main_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'controllers/event_controller.dart'; // Import the EventController
+import 'routes/app_routes.dart';
+import 'controllers/event_controller.dart';
+import 'pages/homepage.dart';
+import 'controllers/navigation_controller.dart';
 
 void main() {
-  // Register the EventController before the app starts
-  Get.put(EventController());  // Registers EventController globally
-
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
+
+    Get.put(EventController());
+    Get.put(NavigationController());
+
     return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Event App',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: MainPage(),  // Your initial screen
+      theme: ThemeData(
+        primarySwatch: Colors.purple,
+        scaffoldBackgroundColor: Colors.white,
+      ),
+      initialRoute: '/',
+      getPages: AppRoutes.pages,
     );
   }
 }

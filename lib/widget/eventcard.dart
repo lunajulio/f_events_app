@@ -1,38 +1,112 @@
+import 'package:event_app/pages/past_event_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/event_controller.dart';
 import '../pages/event_details.dart';
-
-
+import '../pages/past_event_detail_page.dart';
+import '../models/event.dart';
 
 class EventCard extends StatelessWidget {
   final Event event;
+  final bool isMainCard;
+  final EventController controller = Get.find();
 
-  const EventCard({required this.event});
+  EventCard({
+    Key? key,
+    required this.event,
+    this.isMainCard = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        print("Navigating to: ${event.title}");
-        //Get.to<EventDetailsPage>(() => EventDetailsPage(event: event));
-        Get.to(() => EventDetailsPage(event: event));
-      },
-      child: Card(
-        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(event.title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
-              Text("Location: ${event.location}"),
-              Text("Date: ${event.dateTime}"),
-              Text("Available Spots: ${event.maxParticipants - event.currentParticipants}"),
-              
-            ],
+      onTap: () => Get.to(
+        () => event.isPastEvent 
+            ? PastEventDetailsPage(event: event)
+            : EventDetailsPage(event: event)
+      ),
+      child: Container(
+        height: isMainCard ? 200 : 160,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          image: DecorationImage(
+            image: AssetImage('assets/images/${event.id}.png'),
+            fit: BoxFit.cover,
           ),
+        ),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.7),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    event.title,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: isMainCard ? 24 : 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(Icons.location_on, color: Colors.white, size: 16),
+                      SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          event.location,
+                          style: TextStyle(color: Colors.white, fontSize: 14),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today, color: Colors.white, size: 16),
+                      SizedBox(width: 4),
+                      Text(
+                        event.dateTime,
+                        style: TextStyle(color: Colors.white, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                  if (isMainCard) ...[
+                    SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Icons.people, color: Colors.white, size: 16),
+                        SizedBox(width: 4),
+                        Text(
+                          '${event.maxParticipants - event.currentParticipants} spots available',
+                          style: TextStyle(color: Colors.white, fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

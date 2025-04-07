@@ -1,0 +1,44 @@
+import '../controllers/event_controller.dart';
+import 'package:event_app/models/event.dart';
+
+List<Event> EventsList = [
+  Event(
+    id: "1",
+    title: "Coldplay : Music of the Spheres",
+    location: "Gelora Bung Karno Stadium, Jakarta",
+    dateTime: "November 15 2023",
+    description: "Integer id augue iaculis, iaculis orci ut, blandit quam. Donec in elit auctor, finibus quam in phar. Proin id ligula dictum, covallis enim ut, facilisis massa. Mauris a nisl ut sapien blandit imperdi. Interdum et malesuada fames ac ante ipsum primis in faucibus. Sed posuere egestas nunc ut tempus. Fu ipsum dolor sit amet.",
+    maxParticipants: 100,
+    currentParticipants: 0,
+    isPastEvent: false,
+    imageUrl: "assets/images/coldplay.jpg",
+    rating: 4.8,
+    totalRatings: 250,
+  ),
+  Event(
+    id: "2",
+    title: "Muse : Will of the People",
+    location: "Jakarta, Indonesia",
+    dateTime: "July 23 2023",
+    description: "Join Muse for an unforgettable night of rock music as they present their latest album 'Will of the People'. Experience their signature sound and theatrical performance.",
+    maxParticipants: 80,
+    currentParticipants: 80,
+    isPastEvent: true,
+    imageUrl: "assets/images/muse.jpg",
+    rating: 4.9,
+    totalRatings: 180,
+  ),
+  Event(
+    id: "3",
+    title: "One Direction : Where We Are",
+    location: "Jakarta, Indonesia",
+    dateTime: "October 29 2023",
+    description: "The world's biggest band returns to Jakarta for their spectacular Where We Are tour. Don't miss this historic reunion concert!",
+    maxParticipants: 120,
+    currentParticipants: 100,
+    isPastEvent: false,
+    imageUrl: "assets/images/1d.jpg",
+    rating: 0.0,
+    totalRatings: 0,
+  ),
+];
