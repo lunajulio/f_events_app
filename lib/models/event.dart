@@ -2,6 +2,7 @@
 import 'package:event_app/models/review.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'event_category.dart';
 
 class Event {
   final String id;
@@ -11,6 +12,7 @@ class Event {
   final String description;
   final int maxParticipants;
   RxInt currentParticipants;
+  EventCategory category;
   final bool isPastEvent;
   final String imageUrl;
   RxDouble rating;
@@ -24,6 +26,7 @@ class Event {
     required this.dateTime,
     required this.description,
     required this.maxParticipants,
+    required this.category,
     int currentParticipants = 0,
     this.isPastEvent = false,
     required this.imageUrl,

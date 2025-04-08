@@ -19,96 +19,106 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Get.to(
-        () => event.isPastEvent 
-            ? PastEventDetailsPage(event: event)
-            : EventDetailsPage(event: event)
-      ),
-      child: Container(
-        height: isMainCard ? 200 : 160,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          image: DecorationImage(
-            image: AssetImage('assets/images/${event.id}.jpg'),
-            fit: BoxFit.cover,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.maxWidth;
+        final maxHeight = constraints.maxHeight;
+
+        return GestureDetector(
+          onTap: () => Get.to(
+            () => event.isPastEvent 
+                ? PastEventDetailsPage(event: event)
+                : EventDetailsPage(event: event)
           ),
-        ),
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.7),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(maxWidth * 0.05),
+              image: DecorationImage(
+                image: AssetImage('assets/images/${event.id}.jpg'),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(maxWidth * 0.05),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.7),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(maxWidth * 0.03),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        event.title,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: isMainCard ? maxWidth * 0.055 : maxWidth * 0.045,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: maxHeight * 0.08),
+                      Row(
+                        children: [
+                          Icon(Icons.location_on, color: Colors.white, size: maxWidth * 0.04),
+                          SizedBox(width: maxWidth * 0.01),
+                          Expanded(
+                            child: Text(
+                              event.location,
+                              style: TextStyle(color: Colors.white, fontSize: maxWidth * 0.035),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: maxHeight * 0.008),
+                      Row(
+                        children: [
+                          Icon(Icons.calendar_today, color: Colors.white, size: maxWidth * 0.04),
+                          SizedBox(width: maxWidth * 0.01),
+                          Expanded(
+                            child: Text(
+                              '${event.day}-${event.month}-${event.year} at ${event.time}',
+                              style: TextStyle(color: Colors.white, fontSize: maxWidth * 0.035),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (isMainCard) ...[
+                        SizedBox(height: maxHeight * 0.008),
+                        Obx(() => Row(
+                          children: [
+                            Icon(Icons.people, color: Colors.white, size: maxWidth * 0.04),
+                            SizedBox(width: maxWidth * 0.01),
+                            Text(
+                              '${event.maxParticipants - event.currentParticipants.value} spots available',
+                              style: TextStyle(color: Colors.white, fontSize: maxWidth * 0.035),
+                            ),
+                          ],
+                        )),
+                      ],
                     ],
                   ),
                 ),
-              ),
+              ],
             ),
-            Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    event.title,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: isMainCard ? 24 : 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(Icons.location_on, color: Colors.white, size: 16),
-                      SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          event.location,
-                          style: TextStyle(color: Colors.white, fontSize: 14),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(Icons.calendar_today, color: Colors.white, size: 16),
-                      SizedBox(width: 4),
-                      Text(
-                        '${event.day}-${event.month}-${event.year} at ${event.time}',
-                        style: TextStyle(color: Colors.white, fontSize: 14),
-                      ),
-                    ],
-                  ),
-                  if (isMainCard) ...[
-                    SizedBox(height: 4),
-                    Obx(() => Row(
-                      children: [
-                        Icon(Icons.people, color: Colors.white, size: 16),
-                        SizedBox(width: 4),
-                        Text(
-                          '${event.maxParticipants - event.currentParticipants.value} spots available',
-                          style: TextStyle(color: Colors.white, fontSize: 14),
-                        ),
-                      ],
-                    )),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      }
     );
   }
 }

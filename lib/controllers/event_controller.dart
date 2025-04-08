@@ -12,6 +12,8 @@ class EventController extends GetxController {
   final _featuredEvents = <Event>[].obs;
   final _recommendedEvents = <Event>[].obs;
   final _currentFilter = 'All'.obs;
+  final _searchResults = <Event>[].obs;
+  final _searchQuery = ''.obs;
 
   // Getters
   List<Event> get allEvents => _allEvents;
@@ -20,6 +22,8 @@ class EventController extends GetxController {
   List<Event> get featuredEvents => _featuredEvents;
   List<Event> get recommendedEvents => _recommendedEvents;
   String get currentFilter => _currentFilter.value;
+  List<Event> get searchResults => _searchResults;
+  String get searchQuery => _searchQuery.value;
 
   // Getters para eventos filtrados
   List<Event> get filteredAllEvents {
@@ -148,31 +152,47 @@ class EventController extends GetxController {
     );
   }
 
-  // Método para buscar eventos
   void searchEvents(String query) {
+    _searchQuery.value = query.trim();
+    
     if (query.isEmpty) {
-      loadFeaturedEvents();
-      loadRecommendedEvents();
+      _searchResults.clear();
       return;
     }
 
-    final searchLower = query.toLowerCase();
-
-    // Filtrar eventos destacados
-    final filteredFeatured = EventsList.where((event) =>
-      !event.isPastEvent &&
-      (event.title.toLowerCase().contains(searchLower) ||
-      event.location.toLowerCase().contains(searchLower))
-    ).toList();
-
-    // Filtrar eventos recomendados
-    final filteredRecommended = EventsList.where((event) =>
-      event.rating >= 4.5 &&
-      (event.title.toLowerCase().contains(searchLower) ||
-      event.location.toLowerCase().contains(searchLower))
-    ).toList();
-
-    _featuredEvents.assignAll(filteredFeatured);
-    _recommendedEvents.assignAll(filteredRecommended);
+    try {
+      final searchLower = query.toLowerCase();
+      
+      // Combinar eventos de ambas fuentes para la búsqueda
+      final allSearchableEvents = <Event>[];
+      allSearchableEvents.addAll(_featuredEvents);
+      allSearchableEvents.addAll(_recommendedEvents);
+      
+      // Eliminar duplicados (si un evento está en ambas listas)
+      final uniqueEvents = allSearchableEvents.toSet().toList();
+      
+      // Filtrar por término de búsqueda
+      final filtered = uniqueEvents.where((event) {
+        final title = event.title.toLowerCase();
+        final description = event.description.toLowerCase();
+        final location = event.location.toLowerCase();
+        
+        return title.contains(searchLower) || 
+              description.contains(searchLower) ||
+              location.contains(searchLower);
+      }).toList();
+      
+      _searchResults.assignAll(filtered);
+    } catch (e) {
+      print('Error en la búsqueda: $e');
+      _searchResults.clear();
+    }
+    update();
+  }
+  // Método para limpiar la búsqueda
+  void clearSearch() {
+    _searchQuery.value = '';
+    _searchResults.clear();
+    update();
   }
 }
