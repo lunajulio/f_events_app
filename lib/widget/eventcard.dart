@@ -30,7 +30,7 @@ class EventCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           image: DecorationImage(
-            image: AssetImage('assets/images/${event.id}.png'),
+            image: AssetImage('assets/images/${event.id}.jpg'),
             fit: BoxFit.cover,
           ),
         ),
@@ -85,23 +85,23 @@ class EventCard extends StatelessWidget {
                       Icon(Icons.calendar_today, color: Colors.white, size: 16),
                       SizedBox(width: 4),
                       Text(
-                        event.dateTime,
+                        '${event.day}-${event.month}-${event.year} at ${event.time}',
                         style: TextStyle(color: Colors.white, fontSize: 14),
                       ),
                     ],
                   ),
                   if (isMainCard) ...[
                     SizedBox(height: 4),
-                    Row(
+                    Obx(() => Row(
                       children: [
                         Icon(Icons.people, color: Colors.white, size: 16),
                         SizedBox(width: 4),
                         Text(
-                          '${event.maxParticipants - event.currentParticipants} spots available',
+                          '${event.maxParticipants - event.currentParticipants.value} spots available',
                           style: TextStyle(color: Colors.white, fontSize: 14),
                         ),
                       ],
-                    ),
+                    )),
                   ],
                 ],
               ),

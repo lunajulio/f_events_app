@@ -1,25 +1,48 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/event.dart';
 import '../data/eventlist.dart';
+import '../models/review.dart';
 
 class EventController extends GetxController {
-  // Listas existentes
+  // Variables observables
   final _allEvents = <Event>[].obs;
   final _subscribedEvents = <Event>[].obs;
   final _subscribedEventIds = <String>{}.obs;
-
-  // Nuevas listas para la homepage
   final _featuredEvents = <Event>[].obs;
   final _recommendedEvents = <Event>[].obs;
+  final _currentFilter = 'All'.obs;
 
-  // Getters existentes
+  // Getters
   List<Event> get allEvents => _allEvents;
   List<Event> get subscribedEvents => _subscribedEvents;
   Set<String> get subscribedEventIds => _subscribedEventIds;
-
-  // Nuevos getters
   List<Event> get featuredEvents => _featuredEvents;
   List<Event> get recommendedEvents => _recommendedEvents;
+  String get currentFilter => _currentFilter.value;
+
+  // Getters para eventos filtrados
+  List<Event> get filteredAllEvents {
+    switch (_currentFilter.value) {
+      case 'Upcoming':
+        return _allEvents.where((event) => !event.isPastEvent).toList();
+      case 'Past Events':
+        return _allEvents.where((event) => event.isPastEvent).toList();
+      default:
+        return _allEvents;
+    }
+  }
+
+  List<Event> get filteredSubscribedEvents {
+    switch (_currentFilter.value) {
+      case 'Upcoming':
+        return _subscribedEvents.where((event) => !event.isPastEvent).toList();
+      case 'Past Events':
+        return _subscribedEvents.where((event) => event.isPastEvent).toList();
+      default:
+        return _subscribedEvents;
+    }
+  }
 
   @override
   void onInit() {
@@ -29,7 +52,6 @@ class EventController extends GetxController {
     loadRecommendedEvents();
   }
 
-  // Métodos existentes
   void loadEvents() {
     _allEvents.value = EventsList;
   }
@@ -62,20 +84,22 @@ class EventController extends GetxController {
     update();
   }
 
-  // Nuevos métodos para la homepage
   void loadFeaturedEvents() {
-    // Carga eventos destacados (no pasados)
     _featuredEvents.assignAll(
       EventsList.where((event) => !event.isPastEvent).toList()
     );
   }
 
   void loadRecommendedEvents() {
-    // Para eventos recomendados podemos usar una lógica diferente
-    // Por ejemplo, eventos con mejor rating
     _recommendedEvents.assignAll(
       EventsList.where((event) => event.rating >= 4.5).toList()
     );
+  }
+
+  // Método para cambiar el filtro
+  void setFilter(String filter) {
+    _currentFilter.value = filter;
+    update();
   }
 
   // Método para filtrar eventos
@@ -86,16 +110,42 @@ class EventController extends GetxController {
         loadRecommendedEvents();
         break;
       case 'Theater':
-        // Aquí puedes agregar lógica específica para filtrar eventos de teatro
-        // Por ejemplo, si agregas una propiedad 'category' al modelo Event
+        // Implementar filtrado por teatro si se agrega la categoría
         break;
       case 'Music':
-        // Aquí puedes agregar lógica específica para filtrar eventos de música
+        // Implementar filtrado por música si se agrega la categoría
         break;
       default:
         loadFeaturedEvents();
         loadRecommendedEvents();
     }
+  }
+
+  void addReview(Event event, double rating, String comment) {
+    final review = Review(
+      rating: rating,
+      comment: comment,
+      createdAt: DateTime.now()
+    );
+    
+    event.reviews.add(review);
+    
+    double totalRating = event.reviews.fold(0.0, (sum, review) => sum + review.rating);
+    event.rating.value = (totalRating / event.reviews.length);
+    
+    event.totalRatings++;
+    
+    // Actualizar la UI
+    update();
+    
+    // Mostrar un snackbar de confirmación
+    Get.snackbar(
+      'Éxito',
+      'Tu reseña ha sido agregada',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+    );
   }
 
   // Método para buscar eventos

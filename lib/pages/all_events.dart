@@ -59,9 +59,9 @@ class AllEventsPage extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildFilterChip('All', true),
-                    _buildFilterChip('Upcoming', false),
-                    _buildFilterChip('Past Events', false),
+                    _buildFilterChip('All', controller.currentFilter == 'All'),
+                    _buildFilterChip('Upcoming', controller.currentFilter == 'Upcoming'),
+                    _buildFilterChip('Past Events', controller.currentFilter == 'Past Events'),
                   ],
                 ),
               ),
@@ -71,18 +71,19 @@ class AllEventsPage extends StatelessWidget {
               // Lista de eventos
               Expanded(
                 child: Obx(() {
-                  if (controller.allEvents.isEmpty) {
+                  final filteredEvents = controller.filteredAllEvents;
+                  if (filteredEvents.isEmpty) {
                     return Center(
                       child: Text('No events found'),
                     );
                   }
                   return ListView.builder(
-                    itemCount: controller.allEvents.length,
+                    itemCount: filteredEvents.length,
                     itemBuilder: (context, index) {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 16.0),
                         child: EventCard(
-                          event: controller.allEvents[index],
+                          event: filteredEvents[index],
                           isMainCard: true,
                         ),
                       );
@@ -97,19 +98,21 @@ class AllEventsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFilterChip(String label, bool isSelected) {
-    return Padding(
+    Widget _buildFilterChip(String label, bool isSelected) {
+    return Obx(() => Padding(
       padding: const EdgeInsets.only(right: 8.0),
       child: FilterChip(
         label: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
+            color: controller.currentFilter == label ? Colors.white : Colors.black,
           ),
         ),
-        selected: isSelected,
+        selected: controller.currentFilter == label,
         onSelected: (bool selected) {
-          // Implementar la lógica de filtrado
+          if (selected) {
+            controller.setFilter(label);
+          }
         },
         backgroundColor: Colors.grey[200],
         selectedColor: Colors.purple,
@@ -118,6 +121,6 @@ class AllEventsPage extends StatelessWidget {
         ),
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
-    );
+    ));
   }
 }

@@ -25,7 +25,7 @@ class EventDetailsPage extends StatelessWidget {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('assets/images/${event.id}.png'),
+                      image: AssetImage('assets/images/${event.id}.jpg'),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -77,7 +77,7 @@ class EventDetailsPage extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              event.month.length > 3 ? event.month.substring(0, 3) : event.month,
+                              event.month,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -108,7 +108,7 @@ class EventDetailsPage extends StatelessWidget {
                       Icon(Icons.access_time, size: 16, color: Colors.grey),
                       SizedBox(width: 8),
                       Text(
-                        '9:00 pm - 12:00 pm',
+                        '${event.time}',
                         style: TextStyle(color: Colors.grey),
                       ),
                     ],
@@ -118,7 +118,7 @@ class EventDetailsPage extends StatelessWidget {
                       Icon(Icons.people, size: 16, color: Colors.grey),
                       SizedBox(width: 8),
                       Text(
-                        '${event.maxParticipants - event.currentParticipants} spots available',
+                        '${event.maxParticipants - event.currentParticipants.value} spots available',
                         style: TextStyle(color: Colors.grey),
                       ),
                     ],
@@ -158,13 +158,6 @@ class EventDetailsPage extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.grey[600],
                       height: 1.5,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'Read More...',
-                      style: TextStyle(color: Colors.blue),
                     ),
                   ),
 

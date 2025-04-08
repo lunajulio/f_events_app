@@ -78,13 +78,14 @@ class MyEventsPage extends StatelessWidget {
               const SizedBox(height: 20),
 
               // Filtros
+              // Filtros
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildFilterChip('All', true),
-                    _buildFilterChip('Upcoming', false),
-                    _buildFilterChip('Past Events', false),
+                    _buildFilterChip('All', controller.currentFilter == 'All'),
+                    _buildFilterChip('Upcoming', controller.currentFilter == 'Upcoming'),
+                    _buildFilterChip('Past Events', controller.currentFilter == 'Past Events'),
                   ],
                 ),
               ),
@@ -94,18 +95,19 @@ class MyEventsPage extends StatelessWidget {
               // Lista de eventos
               Expanded(
                 child: Obx(() {
-                  if (controller.subscribedEvents.isEmpty) {
+                  final filteredEvents = controller.filteredSubscribedEvents;
+                  if (filteredEvents.isEmpty) {
                     return Center(
                       child: Text('No events found'),
                     );
                   }
                   return ListView.builder(
-                    itemCount: controller.subscribedEvents.length,
+                    itemCount: filteredEvents.length,
                     itemBuilder: (context, index) {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 16.0),
                         child: EventCard(
-                          event: controller.subscribedEvents[index],
+                          event: filteredEvents[index],
                           isMainCard: true,
                         ),
                       );
@@ -139,18 +141,20 @@ class MyEventsPage extends StatelessWidget {
   }
 
   Widget _buildFilterChip(String label, bool isSelected) {
-    return Padding(
+    return Obx(() => Padding(
       padding: const EdgeInsets.only(right: 8.0),
       child: FilterChip(
         label: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
+            color: controller.currentFilter == label ? Colors.white : Colors.black,
           ),
         ),
-        selected: isSelected,
+        selected: controller.currentFilter == label,
         onSelected: (bool selected) {
-          // Implementar la lógica de filtrado
+          if (selected) {
+            controller.setFilter(label);
+          }
         },
         backgroundColor: Colors.grey[200],
         selectedColor: Colors.purple,
@@ -159,6 +163,6 @@ class MyEventsPage extends StatelessWidget {
         ),
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
-    );
+    ));
   }
 }

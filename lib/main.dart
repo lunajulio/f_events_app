@@ -4,8 +4,13 @@ import 'routes/app_routes.dart';
 import 'controllers/event_controller.dart';
 import 'pages/homepage.dart';
 import 'controllers/navigation_controller.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() {
+Future<void> main() async {
+
+  WidgetsFlutterBinding.ensureInitialized();  
+  await initializeDateFormatting('es');  
+  
   runApp(MyApp());
 }
 
