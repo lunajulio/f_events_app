@@ -6,9 +6,9 @@ class ReviewCard extends StatelessWidget {
   final Review review;
 
   const ReviewCard({
-    Key? key,
+    super.key,
     required this.review,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +36,7 @@ class ReviewCard extends StatelessWidget {
           SizedBox(height: 8),
           // Fecha
           Text(
-            review.createdAt.day.toString() +
-                '/' +
-                review.createdAt.month.toString() +
-                '/' +
-                review.createdAt.year.toString(),
+            '${review.createdAt.day}/${review.createdAt.month}/${review.createdAt.year}',
             style: TextStyle(
               color: Colors.grey[600],
               fontSize: 14,

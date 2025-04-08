@@ -4,9 +4,9 @@ class AddReviewDialog extends StatefulWidget {
   final Function(double rating, String comment) onSubmit;
 
   const AddReviewDialog({
-    Key? key,
+    super.key,
     required this.onSubmit,
-  }) : super(key: key);
+  });
 
   @override
   State<AddReviewDialog> createState() => _AddReviewDialogState();

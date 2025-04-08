@@ -113,7 +113,7 @@ class AllEventsPage extends StatelessWidget {
                   SizedBox(height: maxHeight * 0.02),
 
                   // Filtros
-                  Container(
+                  SizedBox(
                     height: maxHeight * 0.05,
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,

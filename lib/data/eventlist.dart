@@ -60,7 +60,7 @@ List<Event> EventsList = [
   ),
   Event(
     id: "5",
-    title: "Curso Intensivo de Python para Ciencia de Datos",
+    title: "Python para Ciencia de Datos",
     location: "Laboratorio de Computación, Edificio A",
     dateTime: DateTime(2024, 9, 5, 08, 30),
     description: "Curso práctico de 3 días sobre Python aplicado a Ciencia de Datos. Se cubrirán bibliotecas como Pandas, NumPy y Scikit-learn.",

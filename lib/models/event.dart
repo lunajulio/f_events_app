@@ -34,10 +34,10 @@ class Event {
     int totalRatings = 0,
     List<Review> reviews = const [],
   }) : 
-    this.currentParticipants = currentParticipants.obs,
-    this.rating = rating.obs,
-    this.totalRatings = totalRatings.obs,
-    this.reviews = reviews.obs;
+    currentParticipants = currentParticipants.obs,
+    rating = rating.obs,
+    totalRatings = totalRatings.obs,
+    reviews = reviews.obs;
 
   // Getters
   bool get isFull => currentParticipants.value >= maxParticipants;
