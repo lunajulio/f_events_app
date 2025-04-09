@@ -53,7 +53,7 @@ class AllEventsPage extends StatelessWidget {
 
                   SizedBox(height: maxHeight * 0.02),
 
-                  // Barra de búsqueda mejorada
+                  // Barra de búsqueda 
                   Container(
                     height: maxHeight * 0.06,
                     decoration: BoxDecoration(
@@ -192,7 +192,7 @@ class AllEventsPage extends StatelessWidget {
                           return Padding(
                             padding: EdgeInsets.only(bottom: maxHeight * 0.02),
                             child: SizedBox(
-                              height: maxHeight * 0.25, // Altura responsiva para las tarjetas
+                              height: maxHeight * 0.25, 
                               child: EventCard(
                                 event: filteredEvents[index],
                                 isMainCard: true,
@@ -237,14 +237,14 @@ class AllEventsPage extends StatelessWidget {
           label,
           style: TextStyle(
             color: controller.currentFilter == label ? Colors.white : Colors.black,
-            fontSize: maxWidth * 0.035, // Texto responsivo
+            fontSize: maxWidth * 0.035, 
           ),
         ),
         selected: controller.currentFilter == label,
         onSelected: (bool selected) {
           if (selected) {
             controller.setFilter(label);
-            // Limpiamos la búsqueda al cambiar filtros para evitar confusión
+            
             searchController.clear();
             searchTerm.value = '';
           }

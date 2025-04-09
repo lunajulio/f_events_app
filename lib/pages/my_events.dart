@@ -59,7 +59,7 @@ class MyEventsPage extends StatelessWidget {
 
                   SizedBox(height: maxHeight * 0.02),
 
-                  // Barra de búsqueda estilizada
+                  // Barra de búsqueda 
                   Container(
                     height: (maxHeight * 0.065).clamp(45.0, 60.0),
                     decoration: BoxDecoration(
@@ -163,7 +163,7 @@ class MyEventsPage extends StatelessWidget {
                     : SizedBox(height: maxHeight * 0.02),
                   ),
 
-                  // Lista de eventos con búsqueda implementada
+                  // Lista de eventos con búsqueda
                   Expanded(
                     child: Obx(() {
                       // Combinar filtros con búsqueda
@@ -272,7 +272,6 @@ class MyEventsPage extends StatelessWidget {
         onSelected: (bool selected) {
           if (selected) {
             controller.setFilter(label);
-            // Limpiamos la búsqueda al cambiar filtros para evitar confusión
             searchController.clear();
             searchTerm.value = '';
           }

@@ -22,7 +22,6 @@ class EventDetailsPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Imagen del evento con botón de retroceso
                 Stack(
                   children: [
                     Container(

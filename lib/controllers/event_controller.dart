@@ -106,24 +106,6 @@ class EventController extends GetxController {
     update();
   }
 
-  // Método para filtrar eventos
-  void filterEvents(String filter) {
-    switch(filter) {
-      case 'All Event':
-        loadFeaturedEvents();
-        loadRecommendedEvents();
-        break;
-      case 'Theater':
-        // Implementar filtrado por teatro si se agrega la categoría
-        break;
-      case 'Music':
-        // Implementar filtrado por música si se agrega la categoría
-        break;
-      default:
-        loadFeaturedEvents();
-        loadRecommendedEvents();
-    }
-  }
 
   void addReview(Event event, double rating, String comment) {
     final review = Review(

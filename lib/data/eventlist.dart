@@ -12,7 +12,7 @@ List<Event> EventsList = [
     currentParticipants: 0,
     category: EventCategory.conference,
     isPastEvent: false,
-    imageUrl: "assets/images/1.jpg", // Cambiar por una imagen apropiada
+    imageUrl: "assets/images/1.jpg", 
     rating: 4.8,
     totalRatings: 250,
   ),
@@ -26,7 +26,7 @@ List<Event> EventsList = [
     currentParticipants: 25,
     category: EventCategory.workshop,
     isPastEvent: false,
-    imageUrl: "assets/images/2.jpg", // Cambiar por una imagen apropiada
+    imageUrl: "assets/images/2.jpg", 
     rating: 4.9,
     totalRatings: 180,
   ),
@@ -40,7 +40,7 @@ List<Event> EventsList = [
     currentParticipants: 45,
     category: EventCategory.course,
     isPastEvent: false,
-    imageUrl: "assets/images/3.jpg", // Cambiar por una imagen apropiada
+    imageUrl: "assets/images/3.jpg", 
     rating: 0.0,
     totalRatings: 0,
   ),
@@ -54,7 +54,7 @@ List<Event> EventsList = [
     currentParticipants: 0,
     category: EventCategory.conference,
     isPastEvent: false,
-    imageUrl: "assets/images/1.jpg", // Cambiar por una imagen apropiada
+    imageUrl: "assets/images/1.jpg", 
     rating: 0.0,
     totalRatings: 0,
   ),
@@ -68,7 +68,7 @@ List<Event> EventsList = [
     currentParticipants: 15,
     category: EventCategory.course,
     isPastEvent: true,
-    imageUrl: "assets/images/2.jpg", // Cambiar por una imagen apropiada
+    imageUrl: "assets/images/2.jpg", 
     rating: 0.0,
     totalRatings: 0,
   ),

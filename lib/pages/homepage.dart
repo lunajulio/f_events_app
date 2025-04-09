@@ -53,7 +53,7 @@ class HomePage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Título principal con estilo mejorado
+                        // Título principal 
                         Text(
                           'Your event journey starts here!',
                           style: TextStyle(
@@ -66,7 +66,6 @@ class HomePage extends StatelessWidget {
                         
                         SizedBox(height: maxHeight * 0.01),
                         
-                        // Subtítulo para más contexto
                         Text(
                           'Discover events that match your interests',
                           style: TextStyle(
@@ -118,7 +117,7 @@ class HomePage extends StatelessWidget {
                 ),
 
                 
-                // Featured Events con título mejorado
+                // Featured Events 
                 SliverToBoxAdapter(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
