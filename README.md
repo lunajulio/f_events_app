@@ -86,6 +86,8 @@ lib/
 └── main.dart          # Punto de entrada
 ```
 
+## DEMO
+[YouTube Short](https://youtube.com/shorts/e71ZEjM_Uzc?feature=share)
 
 
 
