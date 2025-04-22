@@ -1,67 +1,196 @@
-import 'package:event_app/pages/eventlist.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-class Event {
-  final String id;
-  final String title;
-  final String location;
-  final String dateTime;
-  final int maxParticipants;
-  int currentParticipants;
-  bool get isFull => currentParticipants >= maxParticipants;
-  final String description;
-
-  Event({
-    required this.id,
-    required this.title,
-    required this.location,
-    required this.dateTime,
-    required this.maxParticipants,
-    this.currentParticipants = 0,
-    required this.description,
-  });
-}
+import '../models/event.dart';
+import '../data/eventlist.dart';
+import '../models/review.dart';
 
 class EventController extends GetxController {
-  var allEvents = <Event>[].obs;
-  var subscribedEvents = <Event>[].obs;
-  var subscribedEventIds = <String>{}.obs;  
+  // Variables observables
+  final _allEvents = <Event>[].obs;
+  final _subscribedEvents = <Event>[].obs;
+  final _subscribedEventIds = <String>{}.obs;
+  final _featuredEvents = <Event>[].obs;
+  final _recommendedEvents = <Event>[].obs;
+  final _currentFilter = 'All'.obs;
+  final _searchResults = <Event>[].obs;
+  final _searchQuery = ''.obs;
+  final _selectedCategory = 'All'.obs;
+  final _eventsByCategory = <Map<String, List<Event>>>[].obs;
+
+  // Getters
+  List<Event> get allEvents => _allEvents;
+  List<Event> get subscribedEvents => _subscribedEvents;
+  Set<String> get subscribedEventIds => _subscribedEventIds;
+  List<Event> get featuredEvents => _featuredEvents;
+  List<Event> get recommendedEvents => _recommendedEvents;
+  String get currentFilter => _currentFilter.value;
+  List<Event> get searchResults => _searchResults;
+  String get searchQuery => _searchQuery.value;
+  String get selectedCategory => _selectedCategory.value;
+
+  // Getters para eventos filtrados
+  List<Event> get filteredAllEvents {
+    switch (_currentFilter.value) {
+      case 'Upcoming':
+        return _allEvents.where((event) => !event.isPastEvent).toList();
+      case 'Past Events':
+        return _allEvents.where((event) => event.isPastEvent).toList();
+      default:
+        return _allEvents;
+    }
+  }
+
+  List<Event> get filteredSubscribedEvents {
+    switch (_currentFilter.value) {
+      case 'Upcoming':
+        return _subscribedEvents.where((event) => !event.isPastEvent).toList();
+      case 'Past Events':
+        return _subscribedEvents.where((event) => event.isPastEvent).toList();
+      default:
+        return _subscribedEvents;
+    }
+  }
+
+  List<dynamic> getPastEvents(List<dynamic> events) {
+    final now = DateTime.now();
+    return events.where((event) => event.dateTime.isBefore(now)).toList();
+  }
 
   @override
   void onInit() {
     super.onInit();
     loadEvents();
-  }
-
-    bool isSubscribed(Event event) {
-    return subscribedEventIds.contains(event.id);
+    loadFeaturedEvents();
+    loadRecommendedEvents();
   }
 
   void loadEvents() {
-    allEvents.value = EventsList;
+    _allEvents.value = EventsList;
   }
+
+  bool isSubscribed(Event event) {
+    return _subscribedEventIds.contains(event.id);
+  }
+
   void toggleSubscription(Event event) {
-  if (isSubscribed(event)) {
-    event.currentParticipants--;
-    subscribedEvents.removeWhere((e) => e.id == event.id);
-    subscribedEventIds.remove(event.id); 
-  } else {
+    if (isSubscribed(event)) {
+      _unsubscribeFromEvent(event);
+    } else {
+      _subscribeToEvent(event);
+    }
+  }
+
+  void _subscribeToEvent(Event event) {
     if (event.currentParticipants < event.maxParticipants) {
       event.currentParticipants++;
-      subscribedEvents.add(event);
-      subscribedEventIds.add(event.id);
+      _subscribedEvents.add(event);
+      _subscribedEventIds.add(event.id);
+      update();
+    } else {
+      Get.snackbar(
+        'Evento lleno',
+        'Lo sentimos, este evento ya no tiene cupos disponibles',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
-  update();
-}
+
+  void _unsubscribeFromEvent(Event event) {
+    event.currentParticipants--;
+    _subscribedEvents.removeWhere((e) => e.id == event.id);
+    _subscribedEventIds.remove(event.id);
+    update();
+  }
+
+  void loadFeaturedEvents() {
+    _featuredEvents.assignAll(
+      EventsList.where((event) => !event.isPastEvent).toList()
+    );
+  }
+
+  void loadRecommendedEvents() {
+    _recommendedEvents.assignAll(
+      EventsList.where((event) => event.rating >= 4.5).toList()
+    );
+  }
+
+  // Método para cambiar el filtro
+  void setFilter(String filter) {
+    _currentFilter.value = filter;
+    update();
+  }
 
 
+  void addReview(Event event, double rating, String comment) {
+    final review = Review(
+      rating: rating,
+      comment: comment,
+      createdAt: DateTime.now()
+    );
+    
+    event.reviews.add(review);
+    
+    double totalRating = event.reviews.fold(0.0, (sum, review) => sum + review.rating);
+    event.rating.value = (totalRating / event.reviews.length);
+    
+    event.totalRatings++;
+    
+    // Actualizar la UI
+    update();
+    
+    // Mostrar un snackbar de confirmación
+    Get.snackbar(
+      'Éxito',
+      'Tu reseña ha sido agregada',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+    );
+  }
 
-  void _updateParticipantCount(String eventId, int change) {
-    Event? event = allEvents.firstWhereOrNull((e) => e.id == eventId);
-    if (event != null) {
-      event.currentParticipants += change;
-      update();
+  void searchEvents(String query) {
+    _searchQuery.value = query.trim();
+    
+    if (query.isEmpty) {
+      _searchResults.clear();
+      return;
     }
+
+    try {
+      final searchLower = query.toLowerCase();
+      
+      // Combinar eventos de ambas fuentes para la búsqueda
+      final allSearchableEvents = <Event>[];
+      allSearchableEvents.addAll(_featuredEvents);
+      allSearchableEvents.addAll(_recommendedEvents);
+      
+      // Eliminar duplicados (si un evento está en ambas listas)
+      final uniqueEvents = allSearchableEvents.toSet().toList();
+      
+      // Filtrar por término de búsqueda
+      final filtered = uniqueEvents.where((event) {
+        final title = event.title.toLowerCase();
+        final description = event.description.toLowerCase();
+        final location = event.location.toLowerCase();
+        
+        return title.contains(searchLower) || 
+              description.contains(searchLower) ||
+              location.contains(searchLower);
+      }).toList();
+      
+      _searchResults.assignAll(filtered);
+    } catch (e) {
+      print('Error en la búsqueda: $e');
+      _searchResults.clear();
+    }
+    update();
+  }
+  // Método para limpiar la búsqueda
+  void clearSearch() {
+    _searchQuery.value = '';
+    _searchResults.clear();
+    update();
   }
 }

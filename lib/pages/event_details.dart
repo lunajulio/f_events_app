@@ -1,105 +1,223 @@
 import 'package:event_app/controllers/event_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../models/event.dart';
+import 'subscription_success.dart';
 
 class EventDetailsPage extends StatelessWidget {
   final Event event;
-  EventController eventController = Get.find(); 
+  final EventController controller = Get.find();
 
-   EventDetailsPage({Key? key, required this.event}) : super(key: key);
+  EventDetailsPage({super.key, required this.event});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(event.title)),
-      body: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(event.description, style: TextStyle(fontSize: 16)),
-            SizedBox(height: 10),
-            Text("Location: ${event.location}"),
-            Text("Date: ${event.dateTime}"),
-            Text("Available Spots: ${event.maxParticipants - event.currentParticipants}"),
-           Obx(() {
-              bool isSubscribed = eventController.isSubscribed(event);
-              return ElevatedButton(
-                onPressed: () {
-                  eventController.toggleSubscription(event);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isSubscribed ? Colors.red : Colors.blue,
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 24),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final maxWidth = constraints.maxWidth;
+          final maxHeight = constraints.maxHeight;
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Stack(
+                  children: [
+                    Container(
+                      height: maxHeight * 0.35,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage('assets/images/${event.id}.jpg'),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: maxHeight * 0.05,
+                      left: maxWidth * 0.02,
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                          size: maxWidth * 0.06,
+                        ),
+                        onPressed: () => Get.back(),
+                      ),
+                    ),
+                  ],
+                ),
+
+                Padding(
+                  padding: EdgeInsets.all(maxWidth * 0.05),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Título y fecha
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              event.title,
+                              style: TextStyle(
+                                fontSize: maxWidth * 0.06,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.all(maxWidth * 0.02),
+                            decoration: BoxDecoration(
+                              color: Colors.purple,
+                              borderRadius: BorderRadius.circular(maxWidth * 0.02),
+                            ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  event.day,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: maxWidth * 0.05,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  event.month,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: maxWidth * 0.035,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      SizedBox(height: maxHeight * 0.02),
+
+                      // Información del evento
+                      _buildInfoRow(Icons.location_on, event.location, maxWidth),
+                      SizedBox(height: maxHeight * 0.01),
+                      _buildInfoRow(Icons.access_time, event.time, maxWidth),
+                      _buildInfoRow(
+                        Icons.people,
+                        '${event.maxParticipants - event.currentParticipants.value} spots available',
+                        maxWidth
+                      ),
+
+                      SizedBox(height: maxHeight * 0.02),
+
+                      // Etiquetas
+                      _buildTag('Upcoming Event', maxWidth, maxHeight),
+                      SizedBox(height: maxHeight * 0.01),
+                      _buildTag(event.category.name, maxWidth, maxHeight),
+
+                      SizedBox(height: maxHeight * 0.02),
+
+                      // Descripción
+                      Text(
+                        'About ${event.title}',
+                        style: TextStyle(
+                          fontSize: maxWidth * 0.045,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: maxHeight * 0.01),
+                      Text(
+                        event.description,
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          height: 1.5,
+                          fontSize: maxWidth * 0.035,
+                        ),
+                      ),
+
+                      SizedBox(height: maxHeight * 0.03),
+
+                      // Botón de suscripción
+                      Obx(() => SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (!controller.isSubscribed(event) &&
+                                event.currentParticipants.value < event.maxParticipants) {
+                              controller.toggleSubscription(event);
+                              Get.to(() => SubscriptionSuccess(), 
+                                transition: Transition.fadeIn
+                              );
+                            } else {
+                              controller.toggleSubscription(event);
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.purple,
+                            padding: EdgeInsets.symmetric(
+                              vertical: maxHeight * 0.02
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(maxWidth * 0.03),
+                            ),
+                          ),
+                          child: Text(
+                            controller.isSubscribed(event) 
+                                ? 'Unsubscribe' 
+                                : 'Subscribe',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: maxWidth * 0.04,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      )),
+                    ],
                   ),
                 ),
-                child: Text(isSubscribed ? 'Unsubscribe' : 'Subscribe'),
-              );
-            }),
-
-            //feedback
-            if (!event.isFull)
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: Text("Feedback Section", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              ),
-          ],
-        ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
-}
 
-class FeedbackSection extends StatelessWidget {
-  final RxInt rating = 0.obs;
-  final TextEditingController feedbackController = TextEditingController();
-
-  void submitFeedback() {
-    if (rating.value == 0 || feedbackController.text.isEmpty) {
-      // Show an error
-      return;
-    }
-    // Submit the feedback to backend
-    print('Rating: ${rating.value}, Feedback: ${feedbackController.text}');
-    // Reset after submission
-    rating.value = 0;
-    feedbackController.clear();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildInfoRow(IconData icon, String text, double maxWidth) {
+    return Row(
       children: [
-        Text('Rate this event', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: List.generate(5, (index) {
-            return IconButton(
-              icon: Icon(
-                index < rating.value ? Icons.star : Icons.star_border,
-                color: Colors.amber,
-              ),
-              onPressed: () {
-                rating.value = index + 1;
-              },
-            );
-          }),
-        ),
-        Text('Your feedback', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        TextField(
-          controller: feedbackController,
-          decoration: InputDecoration(hintText: 'Leave your feedback here'),
-          maxLines: 3,
-        ),
-        SizedBox(height: 10),
-        ElevatedButton(
-          onPressed: submitFeedback,
-          child: Text('Submit Feedback'),
+        Icon(icon, size: maxWidth * 0.04, color: Colors.grey),
+        SizedBox(width: maxWidth * 0.02),
+        Text(
+          text,
+          style: TextStyle(
+            color: Colors.grey,
+            fontSize: maxWidth * 0.035,
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _buildTag(String text, double maxWidth, double maxHeight) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: maxWidth * 0.03,
+        vertical: maxHeight * 0.008,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.pink.shade100,
+        borderRadius: BorderRadius.circular(maxWidth * 0.05),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: Colors.pink,
+          fontSize: maxWidth * 0.03,
+        ),
+      ),
     );
   }
 }
