@@ -1,0 +1,2 @@
+C:/Users/lunaj/OneDrive/Escritorio/event_app/android/app/.cxx/RelWithDebInfo/6t106k73/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/lunaj/OneDrive/Escritorio/event_app/android/app/.cxx/RelWithDebInfo/6t106k73/armeabi-v7a/CMakeFiles/rebuild_cache.dir

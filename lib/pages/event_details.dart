@@ -71,7 +71,7 @@ class EventDetailsPage extends StatelessWidget {
                           Container(
                             padding: EdgeInsets.all(maxWidth * 0.02),
                             decoration: BoxDecoration(
-                              color: Colors.pink,
+                              color: Colors.purple,
                               borderRadius: BorderRadius.circular(maxWidth * 0.02),
                             ),
                             child: Column(
@@ -143,7 +143,8 @@ class EventDetailsPage extends StatelessWidget {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            if (!controller.isSubscribed(event)) {
+                            if (!controller.isSubscribed(event) &&
+                                event.currentParticipants.value < event.maxParticipants) {
                               controller.toggleSubscription(event);
                               Get.to(() => SubscriptionSuccess(), 
                                 transition: Transition.fadeIn
@@ -153,7 +154,7 @@ class EventDetailsPage extends StatelessWidget {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.pink,
+                            backgroundColor: Colors.purple,
                             padding: EdgeInsets.symmetric(
                               vertical: maxHeight * 0.02
                             ),

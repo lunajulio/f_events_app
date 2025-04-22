@@ -1,16 +1,12 @@
 import 'package:event_app/main.dart';
-import 'package:event_app/controllers/event_controller.dart';
-import 'package:event_app/models/event.dart';
 import 'package:event_app/pages/all_events.dart';
 import 'package:event_app/pages/event_details.dart';
 import 'package:event_app/pages/homepage.dart';
 import 'package:event_app/pages/my_events.dart';
-import 'package:event_app/pages/past_event_detail_page.dart';
 import 'package:event_app/pages/subscription_success.dart';
 import 'package:event_app/widget/eventcard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get/get.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 

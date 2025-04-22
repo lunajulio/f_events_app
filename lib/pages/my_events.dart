@@ -30,20 +30,6 @@ class MyEventsPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Barra superior
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.menu),
-                        onPressed: () {},
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.notifications_outlined),
-                        onPressed: () {},
-                      ),
-                    ],
-                  ),
 
                   SizedBox(height: maxHeight * 0.02),
 

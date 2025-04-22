@@ -1,4 +1,5 @@
 // controllers/navigation_controller.dart
+import 'package:event_app/pages/homepage.dart';
 import 'package:get/get.dart';
 
 class NavigationController extends GetxController {
@@ -9,7 +10,7 @@ class NavigationController extends GetxController {
     
     // Navegar a la página correspondiente
     if (index == 0) {
-      Get.toNamed('/');  // Home
+      Get.to(HomePage());  // Home
     } else {
       Get.toNamed('/my-events');  // My Events
     }

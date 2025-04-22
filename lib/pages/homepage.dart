@@ -131,7 +131,7 @@ class HomePage extends StatelessWidget {
                         child: Row(
                           children: [
                             Text(
-                              'Featured Events',
+                              'Upcoming Events',
                               style: TextStyle(
                                 fontSize: (maxWidth * 0.055).clamp(18.0, 26.0),
                                 fontWeight: FontWeight.bold,
@@ -285,6 +285,96 @@ class HomePage extends StatelessWidget {
                               physics: BouncingScrollPhysics(),
                               padding: EdgeInsets.symmetric(horizontal: maxWidth * 0.05),
                               children: filteredEvents.map((event) => 
+                                Padding(
+                                  padding: EdgeInsets.only(right: maxWidth * 0.04),
+                                  child: SizedBox(
+                                    width: maxWidth * 0.6,
+                                    child: EventCard(
+                                      event: event,
+                                    ),
+                                  ),
+                                ),
+                              ).toList(),
+                            );
+                          }),
+                        ),
+                      ),
+                      SizedBox(height: sectionSpacing),
+                    ],
+                    
+                  ),
+                  
+                ),
+
+                                // Eventos pasados
+                SliverToBoxAdapter(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: maxWidth * 0.05),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Past Events',
+                              style: TextStyle(
+                                fontSize: (maxWidth * 0.055).clamp(18.0, 26.0),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => Get.toNamed('/all-events'),
+                              child: Text(
+                                'See all',
+                                style: TextStyle(
+                                  fontSize: (maxWidth * 0.04).clamp(14.0, 18.0),
+                                  color: Colors.purple,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      
+                      SizedBox(height: maxHeight * 0.01),
+                      
+                      // Carrusel de eventos pasados
+                      Center(
+                        child: SizedBox(
+                          height: recommendedEventHeight, // Puedes ajustar la altura si es necesario
+                          child: Obx(() {
+                            final pastEvents = _getFilteredEvents(controller.getPastEvents(controller.allEvents));
+                            
+                            if (pastEvents.isEmpty) {
+                              return Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.history,
+                                      size: maxWidth * 0.12,
+                                      color: Colors.grey[300],
+                                    ),
+                                    SizedBox(height: 10),
+                                    Text(
+                                      'No past events available',
+                                      style: TextStyle(
+                                        color: Colors.grey[500],
+                                        fontSize: maxWidth * 0.035,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                            
+                            return ListView(
+                              scrollDirection: Axis.horizontal,
+                              physics: BouncingScrollPhysics(),
+                              padding: EdgeInsets.symmetric(horizontal: maxWidth * 0.05),
+                              children: pastEvents.map((event) => 
                                 Padding(
                                   padding: EdgeInsets.only(right: maxWidth * 0.04),
                                   child: SizedBox(

@@ -85,7 +85,7 @@ class PastEventDetailsPage extends StatelessWidget {
                           Container(
                             padding: EdgeInsets.all(maxWidth * 0.02),
                             decoration: BoxDecoration(
-                              color: Colors.orange,
+                              color: Colors.purple,
                               borderRadius: BorderRadius.circular(maxWidth * 0.02),
                             ),
                             child: Column(
@@ -173,7 +173,7 @@ class PastEventDetailsPage extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: () => _showAddReviewDialog(),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange,
+                            backgroundColor: Colors.purple,
                             padding: EdgeInsets.symmetric(vertical: maxHeight * 0.02),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(maxWidth * 0.03),

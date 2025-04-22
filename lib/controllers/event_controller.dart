@@ -14,6 +14,8 @@ class EventController extends GetxController {
   final _currentFilter = 'All'.obs;
   final _searchResults = <Event>[].obs;
   final _searchQuery = ''.obs;
+  final _selectedCategory = 'All'.obs;
+  final _eventsByCategory = <Map<String, List<Event>>>[].obs;
 
   // Getters
   List<Event> get allEvents => _allEvents;
@@ -24,6 +26,7 @@ class EventController extends GetxController {
   String get currentFilter => _currentFilter.value;
   List<Event> get searchResults => _searchResults;
   String get searchQuery => _searchQuery.value;
+  String get selectedCategory => _selectedCategory.value;
 
   // Getters para eventos filtrados
   List<Event> get filteredAllEvents {
@@ -46,6 +49,11 @@ class EventController extends GetxController {
       default:
         return _subscribedEvents;
     }
+  }
+
+  List<dynamic> getPastEvents(List<dynamic> events) {
+    final now = DateTime.now();
+    return events.where((event) => event.dateTime.isBefore(now)).toList();
   }
 
   @override
@@ -73,11 +81,19 @@ class EventController extends GetxController {
   }
 
   void _subscribeToEvent(Event event) {
-    if (!event.isFull) {
+    if (event.currentParticipants < event.maxParticipants) {
       event.currentParticipants++;
       _subscribedEvents.add(event);
       _subscribedEventIds.add(event.id);
       update();
+    } else {
+      Get.snackbar(
+        'Evento lleno',
+        'Lo sentimos, este evento ya no tiene cupos disponibles',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 
