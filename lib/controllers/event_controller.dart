@@ -51,6 +51,8 @@ class EventController extends GetxController {
     }
   }
 
+  get searchTerm => null;
+
   List<dynamic> getPastEvents(List<dynamic> events) {
     final now = DateTime.now();
     return events.where((event) => event.dateTime.isBefore(now)).toList();
@@ -123,31 +125,33 @@ class EventController extends GetxController {
   }
 
 
-  void addReview(Event event, double rating, String comment) {
+  void addReview(Event event, double rating, String comment, {bool showSnackbar = true}) {
     final review = Review(
       rating: rating,
       comment: comment,
-      createdAt: DateTime.now()
+      createdAt: DateTime.now(),
     );
-    
+
     event.reviews.add(review);
-    
+
     double totalRating = event.reviews.fold(0.0, (sum, review) => sum + review.rating);
     event.rating.value = (totalRating / event.reviews.length);
-    
+
     event.totalRatings++;
-    
+
     // Actualizar la UI
     update();
-    
-    // Mostrar un snackbar de confirmación
-    Get.snackbar(
-      'Éxito',
-      'Tu reseña ha sido agregada',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-    );
+
+    // Mostrar un snackbar de confirmación si está habilitado
+    if (showSnackbar) {
+      Get.snackbar(
+        'Éxito',
+        'Tu reseña ha sido agregada',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    }
   }
 
   void searchEvents(String query) {

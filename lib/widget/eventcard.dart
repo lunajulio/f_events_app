@@ -56,61 +56,63 @@ class EventCard extends StatelessWidget {
                 ),
                 Padding(
                   padding: EdgeInsets.all(maxWidth * 0.03),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        event.title,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: isMainCard ? maxWidth * 0.055 : maxWidth * 0.045,
-                          fontWeight: FontWeight.bold,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          event.title,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isMainCard ? maxWidth * 0.055 : maxWidth * 0.045,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: maxHeight * 0.08),
-                      Row(
-                        children: [
-                          Icon(Icons.location_on, color: Colors.white, size: maxWidth * 0.04),
-                          SizedBox(width: maxWidth * 0.01),
-                          Expanded(
-                            child: Text(
-                              event.location,
-                              style: TextStyle(color: Colors.white, fontSize: maxWidth * 0.035),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: maxHeight * 0.008),
-                      Row(
-                        children: [
-                          Icon(Icons.calendar_today, color: Colors.white, size: maxWidth * 0.04),
-                          SizedBox(width: maxWidth * 0.01),
-                          Expanded(
-                            child: Text(
-                              '${event.day}-${event.month}-${event.year} at ${event.time}',
-                              style: TextStyle(color: Colors.white, fontSize: maxWidth * 0.035),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                      if (isMainCard) ...[
-                        SizedBox(height: maxHeight * 0.008),
-                        Obx(() => Row(
+                        SizedBox(height: maxHeight * 0.08),
+                        Row(
                           children: [
-                            Icon(Icons.people, color: Colors.white, size: maxWidth * 0.04),
+                            Icon(Icons.location_on, color: Colors.white, size: maxWidth * 0.04),
                             SizedBox(width: maxWidth * 0.01),
-                            Text(
-                              '${event.maxParticipants - event.currentParticipants.value} spots available',
-                              style: TextStyle(color: Colors.white, fontSize: maxWidth * 0.035),
+                            Expanded(
+                              child: Text(
+                                event.location,
+                                style: TextStyle(color: Colors.white, fontSize: maxWidth * 0.035),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ],
-                        )),
+                        ),
+                        SizedBox(height: maxHeight * 0.008),
+                        Row(
+                          children: [
+                            Icon(Icons.calendar_today, color: Colors.white, size: maxWidth * 0.04),
+                            SizedBox(width: maxWidth * 0.01),
+                            Expanded(
+                              child: Text(
+                                '${event.day}-${event.month}-${event.year} at ${event.time}',
+                                style: TextStyle(color: Colors.white, fontSize: maxWidth * 0.035),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (isMainCard) ...[
+                          SizedBox(height: maxHeight * 0.008),
+                          Obx(() => Row(
+                            children: [
+                              Icon(Icons.people, color: Colors.white, size: maxWidth * 0.04),
+                              SizedBox(width: maxWidth * 0.01),
+                              Text(
+                                '${event.maxParticipants - event.currentParticipants.value} spots available',
+                                style: TextStyle(color: Colors.white, fontSize: maxWidth * 0.035),
+                              ),
+                            ],
+                          )),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               ],
