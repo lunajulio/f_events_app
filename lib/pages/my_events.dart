@@ -36,6 +36,7 @@ class MyEventsPage extends StatelessWidget {
                   // Título
                   Text(
                     'My Events',
+                    key: const Key('myEventsTitle'), // Agregado Key para pruebas
                     style: TextStyle(
                       fontSize: maxWidth * 0.07,
                       fontWeight: FontWeight.bold,
@@ -47,6 +48,7 @@ class MyEventsPage extends StatelessWidget {
 
                   // Barra de búsqueda 
                   Container(
+                    key: const Key('searchBar'), // Agregado Key para pruebas
                     height: (maxHeight * 0.065).clamp(45.0, 60.0),
                     decoration: BoxDecoration(
                       color: Colors.grey[100],
@@ -158,6 +160,7 @@ class MyEventsPage extends StatelessWidget {
                       if (filteredEvents.isEmpty) {
                         return Center(
                           child: Column(
+                            key: const Key('noEventsMessage'), // Agregado Key para pruebas
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(

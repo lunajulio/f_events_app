@@ -45,6 +45,7 @@ class SubscriptionSuccess extends StatelessWidget {
             ),
             SizedBox(height: 32),
             ElevatedButton(
+              key: const Key('myEventsButton'),
               onPressed: () => Get.toNamed('/my-events'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.purple.shade100,
@@ -64,6 +65,7 @@ class SubscriptionSuccess extends StatelessWidget {
             ),
             SizedBox(height: 16),
             TextButton(
+              key: const Key('backToHomeButton'),
               onPressed: () => Get.offAllNamed('/'),
               child: Text(
                 'Back to Home',
