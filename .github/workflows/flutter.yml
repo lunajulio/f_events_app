@@ -2,9 +2,9 @@ name: Flutter
 
 on:
   push:
-    branches: [ "diseñoluna" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "diseñoluna" ]
+    branches: [ "main" ]
 
 jobs:
   build:
