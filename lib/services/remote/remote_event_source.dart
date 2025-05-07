@@ -115,7 +115,36 @@ class RemoteEventSource implements IRemoteEventSource {
         return Future.value(true);
       } else {
         print('Error al agregar evento: ${response.statusCode}');
-        print(response.body);
+        print('Respuesta: ${response.body}');
+        
+        // Intentar con formato alternativo si el primero falla
+        if (response.body.contains("Missing table_name or data")) {
+          print('Intentando con formato alternativo...');
+          
+          // Formato alternativo para compatibilidad con ciertos backends
+          final alternativeResponse = await httpClient.post(
+            Uri.parse("$baseUrl/$contractKey/data/store"),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: jsonEncode({
+              'table_name': eventsTable,
+              'entry': {
+                'data': _convertEventToJson(event)
+              }
+            }),
+          );
+          
+          if (alternativeResponse.statusCode == 201) {
+            print('Evento agregado correctamente con formato alternativo');
+            return Future.value(true);
+          } else {
+            print('Error al agregar evento con formato alternativo: ${alternativeResponse.statusCode}');
+            print('Respuesta: ${alternativeResponse.body}');
+            return Future.value(false);
+          }
+        }
+        
         return Future.value(false);
       }
     } catch (e) {
@@ -213,7 +242,40 @@ class RemoteEventSource implements IRemoteEventSource {
         return Future.value(true);
       } else {
         print('Error al añadir reseña: ${response.statusCode}');
-        print(response.body);
+        print('Respuesta: ${response.body}');
+        
+        // Intentar con formato alternativo si el primero falla
+        if (response.body.contains("Missing table_name or data")) {
+          print('Intentando con formato alternativo para la reseña...');
+          
+          // Formato alternativo para compatibilidad con ciertos backends
+          final alternativeResponse = await httpClient.post(
+            Uri.parse("$baseUrl/$contractKey/data/store"),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: jsonEncode({
+              'table_name': reviewsTable,
+              'entry': {
+                'data': reviewJson
+              }
+            }),
+          );
+          
+          if (alternativeResponse.statusCode == 201) {
+            print('Reseña añadida correctamente con formato alternativo');
+            
+            // Actualizar el evento con la nueva reseña
+            await _updateEventWithReview(eventId, review);
+            
+            return Future.value(true);
+          } else {
+            print('Error al añadir reseña con formato alternativo: ${alternativeResponse.statusCode}');
+            print('Respuesta: ${alternativeResponse.body}');
+            return Future.value(false);
+          }
+        }
+        
         return Future.value(false);
       }
     } catch (e) {
@@ -371,32 +433,106 @@ class RemoteEventSource implements IRemoteEventSource {
       if (json['reviews'] != null) {
         // Verificar que reviews sea una lista
         if (json['reviews'] is List) {
-          reviews = List<Review>.from((json['reviews'] as List).map(
-            (x) => Review(
-              rating: (x['rating'] is int) ? x['rating'].toDouble() : x['rating'],
-              comment: x['comment'],
-              createdAt: DateTime.parse(x['createdAt']),
-            )
-          ));
+          try {
+            reviews = (json['reviews'] as List).map<Review>((x) {
+              // Validar que cada elemento tenga los campos necesarios
+              if (x is Map<String, dynamic> && 
+                  x.containsKey('rating') && 
+                  x.containsKey('comment') && 
+                  x.containsKey('createdAt')) {
+                return Review(
+                  rating: (x['rating'] is int) ? x['rating'].toDouble() : x['rating'] as double,
+                  comment: x['comment'] as String,
+                  createdAt: DateTime.parse(x['createdAt']),
+                );
+              } else {
+                print('⚠️ Reseña con formato incorrecto: $x');
+                return Review(
+                  rating: 0.0,
+                  comment: "Error en formato de reseña",
+                  createdAt: DateTime.now(),
+                );
+              }
+            }).toList();
+          } catch (e) {
+            print('⚠️ Error al procesar las reseñas: $e');
+            reviews = [];
+          }
         } else {
           print('⚠️ Campo reviews no es una lista: ${json['reviews']}');
         }
       }
 
+      // Asegurar que los campos numéricos sean del tipo correcto
+      double eventRating = 0.0;
+      if (json['rating'] != null) {
+        if (json['rating'] is int) {
+          eventRating = json['rating'].toDouble();
+        } else if (json['rating'] is double) {
+          eventRating = json['rating'];
+        } else {
+          try {
+            eventRating = double.parse(json['rating'].toString());
+          } catch (e) {
+            print('⚠️ Error al convertir rating: ${json['rating']}');
+            eventRating = 0.0;
+          }
+        }
+      }
+
+      int maxParts = 0;
+      if (json['maxParticipants'] != null) {
+        if (json['maxParticipants'] is int) {
+          maxParts = json['maxParticipants'];
+        } else {
+          try {
+            maxParts = int.parse(json['maxParticipants'].toString());
+          } catch (e) {
+            print('⚠️ Error al convertir maxParticipants: ${json['maxParticipants']}');
+          }
+        }
+      }
+
+      int currentParts = 0;
+      if (json['currentParticipants'] != null) {
+        if (json['currentParticipants'] is int) {
+          currentParts = json['currentParticipants'];
+        } else {
+          try {
+            currentParts = int.parse(json['currentParticipants'].toString());
+          } catch (e) {
+            print('⚠️ Error al convertir currentParticipants: ${json['currentParticipants']}');
+          }
+        }
+      }
+
+      int totalRatings = 0;
+      if (json['totalRatings'] != null) {
+        if (json['totalRatings'] is int) {
+          totalRatings = json['totalRatings'];
+        } else {
+          try {
+            totalRatings = int.parse(json['totalRatings'].toString());
+          } catch (e) {
+            print('⚠️ Error al convertir totalRatings: ${json['totalRatings']}');
+          }
+        }
+      }
+
       // Crear el evento con los valores del JSON
       Event event = Event(
-        id: json['id'] ?? '',
-        title: json['title'] ?? '',
-        location: json['location'] ?? '',
-        dateTime: json['dateTime'] != null ? DateTime.parse(json['dateTime']) : DateTime.now(),
-        description: json['description'] ?? '',
-        maxParticipants: json['maxParticipants'] ?? 0,
-        currentParticipants: json['currentParticipants'] ?? 0,
-        category: _parseEventCategory(json['category']),
-        isPastEvent: json['isPastEvent'] ?? false,
-        imageUrl: json['imageUrl'] ?? 'assets/images/1.jpg',
-        rating: json['rating'] != null ? (json['rating'] is int ? json['rating'].toDouble() : json['rating']) : 0.0,
-        totalRatings: json['totalRatings'] ?? 0,
+        id: json['id']?.toString() ?? '',
+        title: json['title']?.toString() ?? '',
+        location: json['location']?.toString() ?? '',
+        dateTime: json['dateTime'] != null ? DateTime.parse(json['dateTime'].toString()) : DateTime.now(),
+        description: json['description']?.toString() ?? '',
+        maxParticipants: maxParts,
+        currentParticipants: currentParts,
+        category: _parseEventCategory(json['category']?.toString()),
+        isPastEvent: json['isPastEvent'] == true,
+        imageUrl: json['imageUrl']?.toString() ?? 'assets/images/1.jpg',
+        rating: eventRating,
+        totalRatings: totalRatings,
         reviews: reviews,
       );
 
@@ -405,7 +541,18 @@ class RemoteEventSource implements IRemoteEventSource {
       return event;
     } catch (e) {
       print('Error al convertir JSON a Event: $e');
-      throw Exception('Error parsing Event from JSON: $e');
+      // Crear un evento vacío en caso de error
+      return Event(
+        id: json['id']?.toString() ?? 'error_id',
+        title: json['title']?.toString() ?? 'Error al cargar evento',
+        location: '',
+        dateTime: DateTime.now(),
+        description: 'Error al procesar este evento: ${e.toString()}',
+        maxParticipants: 0,
+        category: EventCategory.conference,
+        isPastEvent: true,
+        imageUrl: 'assets/images/1.jpg',
+      );
     }
   }
 

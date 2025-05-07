@@ -5,6 +5,49 @@ import 'package:event_app/models/event.dart';
 import 'package:event_app/models/review.dart';
 import 'package:event_app/models/event_category.dart';
 import 'package:flutter/material.dart';
+import 'package:event_app/services/sync_service.dart';
+
+// Implementación básica de SyncService para pruebas
+  @override
+  Future<bool> addReview(String eventId, Review review) async {
+    return true; // Simplemente retorna éxito para las pruebas
+  }
+
+  @override
+  Future<bool> addEvent(Event event) async {
+    return true; // Retorna éxito para las pruebas
+  }
+
+  @override
+  Future<bool> deleteAllRemoteEvents() async {
+    return true; // Retorna éxito para las pruebas
+  }
+
+  @override
+  Future<bool> deleteEvent(String eventId) async {
+    return true; // Retorna éxito para las pruebas
+  }
+
+  @override
+  void dispose() {
+    // No se necesita implementación para las pruebas
+  }
+
+  @override
+  Future<List<Event>> fetchEvents() async {
+    return []; // Retorna una lista vacía para las pruebas
+  }
+
+  @override
+  Future<bool> syncEvents(List<Event> events) async {
+    return true; // Retorna éxito para las pruebas
+  }
+
+  @override
+  Future<bool> updateEvent(Event event) async {
+    return true; // Retorna éxito para las pruebas
+  }
+}
 
 void main() {
   late EventController eventController;
@@ -12,12 +55,17 @@ void main() {
   setUp(() {
     TestWidgetsFlutterBinding.ensureInitialized();
     Get.testMode = true; // Configurar GetX en modo de prueba
+    
+    // Registrar SyncService antes que EventController
+    Get.put<SyncService>(TestSyncService());
+    
     eventController = EventController();
     Get.put(eventController);
   });
 
   tearDown(() {
     Get.delete<EventController>();
+    Get.delete<SyncService>();
   });
 
   test('loadEvents should populate allEvents', () {

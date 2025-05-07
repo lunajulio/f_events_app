@@ -4,6 +4,15 @@ import 'package:get/get.dart';
 import 'package:event_app/controllers/navigation_controller.dart';
 import 'package:event_app/pages/homepage.dart';
 import 'package:event_app/controllers/event_controller.dart';
+import 'package:event_app/services/sync_service.dart';
+
+// Implementación básica de SyncService para pruebas
+class TestSyncService extends GetxService implements SyncService {
+  @override
+  Future<bool> addReview(String eventId, dynamic review) async {
+    return true; // Simplemente retorna éxito para las pruebas
+  }
+}
 
 void main() {
   late NavigationController navigationController;
@@ -11,11 +20,15 @@ void main() {
   setUp(() {
     TestWidgetsFlutterBinding.ensureInitialized();
     Get.testMode = true; // Configurar GetX en modo de prueba
+
+    // Registrar SyncService antes que EventController
+    Get.put<SyncService>(TestSyncService());
+
+    // Registrar EventController antes que NavigationController
+    Get.put(EventController());
+
     navigationController = NavigationController();
     Get.put(navigationController);
-
-    // Registrar EventController para evitar errores
-    Get.put(EventController());
 
     // Configurar rutas para las pruebas
     GetMaterialApp(
@@ -31,6 +44,8 @@ void main() {
 
   tearDown(() {
     Get.delete<NavigationController>();
+    Get.delete<EventController>();
+    Get.delete<SyncService>();
   });
 
   test('changeIndex should update selectedIndex and navigate to the correct page', () {

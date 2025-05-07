@@ -5,16 +5,31 @@ import 'package:event_app/pages/all_events.dart';
 import 'package:event_app/controllers/event_controller.dart';
 import 'package:event_app/models/event.dart';
 import 'package:event_app/models/event_category.dart';
+import 'package:event_app/services/sync_service.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
+// Implementación básica de SyncService para pruebas
+class TestSyncService extends GetxService implements SyncService {
+  @override
+  Future<bool> addReview(String eventId, dynamic review) async {
+    return true; // Simplemente retorna éxito para las pruebas
+  }
+}
 
 void main() {
   group('AllEventsPage', () {
     late EventController controller;
 
     setUp(() async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      Get.testMode = true;
+
       // Inicializar localización para formateo de fechas
       await initializeDateFormatting('es');
+
+      // Registrar SyncService antes que EventController
+      Get.put<SyncService>(TestSyncService());
 
       // Registrar un EventController con eventos simples y todos los atributos requeridos
       controller = Get.put(EventController());
@@ -55,7 +70,8 @@ void main() {
     });
 
     tearDown(() {
-      Get.reset();
+      Get.delete<EventController>();
+      Get.delete<SyncService>();
     });
 
     testWidgets('Renderiza la página y muestra eventos', (WidgetTester tester) async {
