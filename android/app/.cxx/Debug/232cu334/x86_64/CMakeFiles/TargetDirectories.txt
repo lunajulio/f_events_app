@@ -1,0 +1,2 @@
+C:/Users/lunaj/OneDrive/Escritorio/f_events_app/android/app/.cxx/Debug/232cu334/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/lunaj/OneDrive/Escritorio/f_events_app/android/app/.cxx/Debug/232cu334/x86_64/CMakeFiles/rebuild_cache.dir

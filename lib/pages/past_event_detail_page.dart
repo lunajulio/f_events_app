@@ -268,7 +268,7 @@ class PastEventDetailsPage extends StatelessWidget {
               ],
             ),
             Text(
-              '${event.totalRatings.value} ratings',
+              '${event.totalRatings} ratings',
               style: TextStyle(
                 color: Colors.grey,
                 fontSize: maxWidth * 0.035,

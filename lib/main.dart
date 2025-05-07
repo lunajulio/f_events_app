@@ -1,35 +1,46 @@
+import 'package:event_app/controllers/event_controller.dart';
+import 'package:event_app/controllers/navigation_controller.dart';
+import 'package:event_app/routes/app_routes.dart';
+import 'package:event_app/services/storage_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'controllers/event_controller.dart';
-import 'pages/homepage.dart';
-import 'controllers/navigation_controller.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'routes/app_routes.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();  
-  await initializeDateFormatting('es');  
+  WidgetsFlutterBinding.ensureInitialized();
   
-  runApp(const MyApp());
+  // Inicializar Hive
+  await StorageService.init();
+  
+  // Inicializar formateo de fechas
+  await initializeDateFormatting('es', null);
+  
+  // Configurar preferencias de UI
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+  ));
+  
+  // Registrar controladores globales
+  Get.put(NavigationController());
+  Get.put(EventController());
+  
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
-    Get.put(EventController());
-    Get.put(NavigationController());
-
     return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Event App',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.purple,
-        scaffoldBackgroundColor: Colors.white,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+        fontFamily: 'Poppins',
       ),
-      home: HomePage(),
-      getPages: AppRoutes.pages,
+      initialRoute: AppRoutes.HOME,
+      getPages: AppRoutes.pages
     );
   }
 }

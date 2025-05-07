@@ -1,20 +1,18 @@
+import 'package:hive/hive.dart';
+
+part 'event_category.g.dart'; // Este archivo será generado automáticamente
+
+@HiveType(typeId: 2)
 enum EventCategory {
+  @HiveField(0)
   conference,
+  
+  @HiveField(1)
   workshop,
+  
+  @HiveField(2)
   course,
-  investigation;
-
-
-  String get name {
-    switch (this) {
-      case EventCategory.conference:
-        return 'Conference';
-      case EventCategory.workshop:
-        return 'Workshop';
-      case EventCategory.course:
-        return 'Course';
-      case EventCategory.investigation:
-        return 'Investigation';
-    }
-  }
+  
+  @HiveField(3)
+  investigation
 }

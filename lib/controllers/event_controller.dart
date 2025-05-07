@@ -3,26 +3,25 @@ import 'package:get/get.dart';
 import '../models/event.dart';
 import '../data/eventlist.dart';
 import '../models/review.dart';
+import '../services/storage_service.dart'; // Añadida la importación faltante
 
 class EventController extends GetxController {
   // Variables observables
-  final _allEvents = <Event>[].obs;
-  final _subscribedEvents = <Event>[].obs;
-  final _subscribedEventIds = <String>{}.obs;
-  final _featuredEvents = <Event>[].obs;
-  final _recommendedEvents = <Event>[].obs;
-  final _currentFilter = 'All'.obs;
-  final _searchResults = <Event>[].obs;
-  final _searchQuery = ''.obs;
-  final _selectedCategory = 'All'.obs;
-  final _eventsByCategory = <Map<String, List<Event>>>[].obs;
+  final RxList<Event> _allEvents = <Event>[].obs;
+  final RxList<Event> _featuredEvents = <Event>[].obs;
+  final RxList<Event> _recommendedEvents = <Event>[].obs;
+  final RxList<Event> _subscribedEvents = <Event>[].obs;
+  final RxSet<String> _subscribedEventIds = <String>{}.obs;
+  final RxString _currentFilter = 'All'.obs;
+  final RxList<Event> _searchResults = <Event>[].obs;
+  final RxString _searchQuery = ''.obs;
+  final RxString _selectedCategory = 'All Event'.obs;
 
   // Getters
   List<Event> get allEvents => _allEvents;
-  List<Event> get subscribedEvents => _subscribedEvents;
-  Set<String> get subscribedEventIds => _subscribedEventIds;
   List<Event> get featuredEvents => _featuredEvents;
   List<Event> get recommendedEvents => _recommendedEvents;
+  List<Event> get subscribedEvents => _subscribedEvents;
   String get currentFilter => _currentFilter.value;
   List<Event> get searchResults => _searchResults;
   String get searchQuery => _searchQuery.value;
@@ -64,10 +63,33 @@ class EventController extends GetxController {
     loadEvents();
     loadFeaturedEvents();
     loadRecommendedEvents();
+    _loadSubscribedEvents();
   }
 
   void loadEvents() {
-    _allEvents.value = EventsList;
+    // Intentar obtener eventos de Hive primero
+    final storedEvents = StorageService.getAllEvents();
+    
+    if (storedEvents.isNotEmpty) {
+      _allEvents.value = storedEvents;
+      print('🔵 Eventos cargados desde HIVE: ${storedEvents.length} eventos');
+    } else {
+      // Si no hay eventos almacenados, usar la lista predefinida
+      _allEvents.value = EventsList;
+      // Y guardarlos en Hive para uso futuro
+      StorageService.saveAllEvents(EventsList);
+      print('🔴 Eventos cargados desde LISTA PREDEFINIDA: ${EventsList.length} eventos');
+    }
+  }
+
+  void _loadSubscribedEvents() {
+    // Cargar eventos suscritos de Hive
+    final subscribedEvents = StorageService.getAllSubscribedEvents();
+    _subscribedEvents.value = subscribedEvents;
+    
+    // Cargar IDs de eventos suscritos
+    _subscribedEventIds.value = StorageService.getAllSubscribedEventIds().toSet();
+    update();
   }
 
   bool isSubscribed(Event event) {
@@ -83,10 +105,15 @@ class EventController extends GetxController {
   }
 
   void _subscribeToEvent(Event event) {
-    if (event.currentParticipants < event.maxParticipants) {
-      event.currentParticipants++;
+    if (event.currentParticipants.value < event.maxParticipants) {
+      event.currentParticipants.value++;
       _subscribedEvents.add(event);
       _subscribedEventIds.add(event.id);
+      
+      // Guardar en Hive
+      StorageService.saveSubscription(event.id);
+      StorageService.saveEvent(event);
+      
       update();
     } else {
       Get.snackbar(
@@ -100,21 +127,28 @@ class EventController extends GetxController {
   }
 
   void _unsubscribeFromEvent(Event event) {
-    event.currentParticipants--;
+    event.currentParticipants.value--;
     _subscribedEvents.removeWhere((e) => e.id == event.id);
     _subscribedEventIds.remove(event.id);
+    
+    // Actualizar en Hive
+    StorageService.removeSubscription(event.id);
+    StorageService.saveEvent(event);
+    
     update();
   }
 
   void loadFeaturedEvents() {
+    // Usar los eventos ya cargados en memoria en lugar de EventsList directamente
     _featuredEvents.assignAll(
-      EventsList.where((event) => !event.isPastEvent).toList()
+      _allEvents.where((event) => !event.isPastEvent).toList()
     );
   }
 
   void loadRecommendedEvents() {
+    // Usar los eventos ya cargados en memoria en lugar de EventsList directamente
     _recommendedEvents.assignAll(
-      EventsList.where((event) => event.rating >= 4.5).toList()
+      _allEvents.where((event) => event.rating >= 4.5).toList()
     );
   }
 
@@ -124,7 +158,6 @@ class EventController extends GetxController {
     update();
   }
 
-
   void addReview(Event event, double rating, String comment, {bool showSnackbar = true}) {
     final review = Review(
       rating: rating,
@@ -132,12 +165,35 @@ class EventController extends GetxController {
       createdAt: DateTime.now(),
     );
 
-    event.reviews.add(review);
-
-    double totalRating = event.reviews.fold(0.0, (sum, review) => sum + review.rating);
-    event.rating.value = (totalRating / event.reviews.length);
-
-    event.totalRatings++;
+    // No es necesario agregar manualmente la revisión aquí, StorageService
+    // ya lo hace y actualiza el objeto event
+    StorageService.addReviewToEvent(event.id, review);
+    
+    // Obtener el evento actualizado de Hive
+    final updatedEvent = StorageService.getEvent(event.id);
+    if (updatedEvent != null) {
+      // Actualizar las referencias locales con la versión guardada
+      int index = _allEvents.indexWhere((e) => e.id == event.id);
+      if (index >= 0) {
+        _allEvents[index] = updatedEvent;
+      }
+      
+      // Actualizar también en otras listas si existe
+      index = _featuredEvents.indexWhere((e) => e.id == event.id);
+      if (index >= 0) {
+        _featuredEvents[index] = updatedEvent;
+      }
+      
+      index = _recommendedEvents.indexWhere((e) => e.id == event.id);
+      if (index >= 0) {
+        _recommendedEvents[index] = updatedEvent;
+      }
+      
+      index = _subscribedEvents.indexWhere((e) => e.id == event.id);
+      if (index >= 0) {
+        _subscribedEvents[index] = updatedEvent;
+      }
+    }
 
     // Actualizar la UI
     update();
@@ -191,6 +247,7 @@ class EventController extends GetxController {
     }
     update();
   }
+  
   // Método para limpiar la búsqueda
   void clearSearch() {
     _searchQuery.value = '';

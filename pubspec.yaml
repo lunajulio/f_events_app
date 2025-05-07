@@ -35,6 +35,8 @@ dependencies:
   path_provider: ^2.1.2
   intl: ^0.18.0
   
+  hive: ^2.0.3
+  hive_flutter: ^1.0.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -46,6 +48,9 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   
+  # Añadidas dependencias para generar adaptadores de Hive
+  build_runner: ^2.4.7
+  hive_generator: ^2.0.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
