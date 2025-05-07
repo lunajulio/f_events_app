@@ -49,7 +49,9 @@ class Event {
   int totalRatings;
   
   @HiveField(12)
-  final List<Review> reviews;
+  List<Review> _reviewsList;
+  // Hacemos que la lista de reviews sea reactiva
+  late RxList<Review> reviews;
 
   Event({
     required this.id,
@@ -70,7 +72,10 @@ class Event {
        this.currentParticipants = (currentParticipants ?? 0).obs,
        this._ratingValue = rating,
        this.rating = rating.obs,
-       this.reviews = reviews ?? [];
+       this._reviewsList = reviews ?? [] {
+    // Inicializar la lista reactiva de reviews
+    this.reviews = (_reviewsList).obs;
+  }
 
   // Getters
   bool get isFull => currentParticipants.value >= maxParticipants;
@@ -86,10 +91,26 @@ class Event {
   void beforeSave() {
     _currentParticipantsValue = currentParticipants.value;
     _ratingValue = rating.value;
+    _reviewsList = reviews.toList(); // Guardar la lista actual de reviews
   }
   
   void afterLoad() {
     currentParticipants = _currentParticipantsValue.obs;
     rating = _ratingValue.obs;
+    reviews = _reviewsList.obs; // Inicializar la lista reactiva con los valores guardados
+  }
+  
+  // Método para agregar una reseña
+  void addReview(Review review) {
+    reviews.add(review);
+    // Actualizar la calificación promedio
+    double totalScore = 0;
+    for (var rev in reviews) {
+      totalScore += rev.rating;
+    }
+    totalRatings = reviews.length;
+    rating.value = totalRatings > 0 ? totalScore / totalRatings : 0.0;
+    // Actualizar los valores para Hive
+    beforeSave();
   }
 }

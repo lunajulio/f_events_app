@@ -1,15 +1,47 @@
 import 'package:event_app/controllers/event_controller.dart';
+import 'package:event_app/models/review.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/event.dart';
 import '../widget/reviewcard.dart';
 import '../widget/add_review_dialog.dart';
 
-class PastEventDetailsPage extends StatelessWidget {
+class PastEventDetailsPage extends StatefulWidget {
   final Event event;
-  EventController eventController = Get.find();
 
   PastEventDetailsPage({super.key, required this.event});
+  
+  @override
+  State<PastEventDetailsPage> createState() => _PastEventDetailsPageState();
+}
+
+class _PastEventDetailsPageState extends State<PastEventDetailsPage> {
+  late EventController eventController;
+  
+  // Variables que almacenarán los valores actuales (no reactivos)
+  late double currentRating;
+  late int currentTotalRatings;
+  late List<Review> currentReviews;
+  
+  @override
+  void initState() {
+    super.initState();
+    eventController = Get.find<EventController>();
+    
+    // Inicializar con los valores actuales
+    currentRating = widget.event.rating.value;
+    currentTotalRatings = widget.event.totalRatings;
+    currentReviews = widget.event.reviews.toList();
+  }
+
+  // Método para refrescar los datos después de agregar una reseña
+  void _refreshData() {
+    setState(() {
+      currentRating = widget.event.rating.value;
+      currentTotalRatings = widget.event.totalRatings;
+      currentReviews = widget.event.reviews.toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +63,7 @@ class PastEventDetailsPage extends StatelessWidget {
                       width: double.infinity,
                       decoration: BoxDecoration(
                         image: DecorationImage(
-                          image: AssetImage('assets/images/${event.id}.jpg'),
+                          image: AssetImage('assets/images/${widget.event.id}.jpg'),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -75,7 +107,7 @@ class PastEventDetailsPage extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              event.title,
+                              widget.event.title,
                               style: TextStyle(
                                 fontSize: maxWidth * 0.06,
                                 fontWeight: FontWeight.bold,
@@ -91,7 +123,7 @@ class PastEventDetailsPage extends StatelessWidget {
                             child: Column(
                               children: [
                                 Text(
-                                  event.day,
+                                  widget.event.day,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: maxWidth * 0.05,
@@ -99,7 +131,7 @@ class PastEventDetailsPage extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  event.month,
+                                  widget.event.month,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: maxWidth * 0.035,
@@ -119,7 +151,7 @@ class PastEventDetailsPage extends StatelessWidget {
                           Icon(Icons.location_on, size: maxWidth * 0.04, color: Colors.grey),
                           SizedBox(width: maxWidth * 0.02),
                           Text(
-                            event.location,
+                            widget.event.location,
                             style: TextStyle(
                               color: Colors.grey,
                               fontSize: maxWidth * 0.035,
@@ -135,7 +167,7 @@ class PastEventDetailsPage extends StatelessWidget {
                           Icon(Icons.access_time, size: maxWidth * 0.04, color: Colors.grey),
                           SizedBox(width: maxWidth * 0.02),
                           Text(
-                            event.time,
+                            widget.event.time,
                             style: TextStyle(
                               color: Colors.grey,
                               fontSize: maxWidth * 0.035,
@@ -151,7 +183,7 @@ class PastEventDetailsPage extends StatelessWidget {
                         spacing: maxWidth * 0.02,
                         children: [
                           _buildTag('Past Event', maxWidth, maxHeight),
-                          _buildTag(event.category.name, maxWidth, maxHeight),
+                          _buildTag(widget.event.category.name, maxWidth, maxHeight),
                         ],
                       ),
 
@@ -221,114 +253,110 @@ class PastEventDetailsPage extends StatelessWidget {
   }
 
   Widget _buildRatingSection(double maxWidth, double maxHeight) {
-    return GetX<EventController>(
-      builder: (controller) => Container(
-        padding: EdgeInsets.all(maxWidth * 0.04),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(maxWidth * 0.03),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 5,
+    return Container(
+      padding: EdgeInsets.all(maxWidth * 0.04),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(maxWidth * 0.03),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 5,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Rating',
+            style: TextStyle(
+              fontSize: maxWidth * 0.045,
+              fontWeight: FontWeight.bold,
             ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Rating',
-              style: TextStyle(
-                fontSize: maxWidth * 0.045,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: maxHeight * 0.015),
-            Row(
-              children: [
-                Text(
-                  event.rating.value.toStringAsFixed(1),
-                  style: TextStyle(
-                    fontSize: maxWidth * 0.08,
-                    fontWeight: FontWeight.bold,
-                  ),
+          ),
+          SizedBox(height: maxHeight * 0.015),
+          Row(
+            children: [
+              Text(
+                currentRating.toStringAsFixed(1),
+                style: TextStyle(
+                  fontSize: maxWidth * 0.08,
+                  fontWeight: FontWeight.bold,
                 ),
-                SizedBox(width: maxWidth * 0.04),
-                Row(
-                  children: List.generate(5, (index) {
-                    return Icon(
-                      index < event.rating.value ? Icons.star : Icons.star_border,
-                      color: Colors.orange,
-                      size: maxWidth * 0.06,
-                    );
-                  }),
-                ),
-              ],
-            ),
-            Text(
-              '${event.totalRatings} ratings',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: maxWidth * 0.035,
               ),
+              SizedBox(width: maxWidth * 0.04),
+              Row(
+                children: List.generate(5, (index) {
+                  return Icon(
+                    index < currentRating ? Icons.star : Icons.star_border,
+                    color: Colors.orange,
+                    size: maxWidth * 0.06,
+                  );
+                }),
+              ),
+            ],
+          ),
+          Text(
+            '$currentTotalRatings calificaciones',
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: maxWidth * 0.035,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildReviewsSection(double maxWidth, double maxHeight) {
-    return GetX<EventController>(
-      builder: (controller) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Reseñas',
-                style: TextStyle(
-                  fontSize: maxWidth * 0.05,
-                  fontWeight: FontWeight.bold,
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Reseñas',
+              style: TextStyle(
+                fontSize: maxWidth * 0.05,
+                fontWeight: FontWeight.bold,
               ),
-              if (event.reviews.isNotEmpty)
-                Text(
-                  '${event.reviews.length} reviews',
+            ),
+            currentReviews.isNotEmpty
+              ? Text(
+                  '${currentReviews.length} reseñas',
                   style: TextStyle(
                     color: Colors.grey,
                     fontSize: maxWidth * 0.035,
                   ),
-                ),
-            ],
-          ),
-          SizedBox(height: maxHeight * 0.02),
-          if (event.reviews.isNotEmpty)
-            SizedBox(
+                )
+              : SizedBox(),
+          ],
+        ),
+        SizedBox(height: maxHeight * 0.02),
+        currentReviews.isNotEmpty
+          ? SizedBox(
               height: maxHeight * 0.25,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 physics: BouncingScrollPhysics(),
-                itemCount: event.reviews.length,
+                itemCount: currentReviews.length,
                 itemBuilder: (context, index) => Padding(
                   padding: EdgeInsets.only(right: maxWidth * 0.04),
-                  child: ReviewCard(review: event.reviews[index]),
+                  child: ReviewCard(review: currentReviews[index]),
                 ),
               ),
             )
-          else
-            Text(
+          : Text(
               'No hay reseñas aún',
               style: TextStyle(
                 color: Colors.grey[600],
                 fontSize: maxWidth * 0.04,
               ),
             ),
-        ],
-      ),
+      ],
     );
   }
 
@@ -336,8 +364,14 @@ class PastEventDetailsPage extends StatelessWidget {
     Get.dialog(
       AddReviewDialog(
         onSubmit: (rating, comment) {
-          eventController.addReview(event, rating, comment);
+          // Añadir la reseña
+          eventController.addReview(widget.event, rating, comment);
+          
+          // Cerrar el diálogo
           Get.back();
+          
+          // Refrescar los datos manualmente después de agregar la reseña
+          _refreshData();
         },
       ),
       barrierDismissible: true,

@@ -394,6 +394,27 @@ class HomePage extends StatelessWidget {
                 ),
                 
                 // Padding final
+                SliverToBoxAdapter(
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20.0),
+                      child: ElevatedButton.icon(
+                        onPressed: () => Get.toNamed('/sync-status'),
+                        icon: Icon(Icons.sync, color: Colors.white),
+                        label: Text('Estado de sincronización', style: TextStyle(color: Colors.white)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green[700],
+                          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                
+                // Padding final
                 SliverPadding(
                   padding: EdgeInsets.only(bottom: maxHeight * 0.08),
                 ),

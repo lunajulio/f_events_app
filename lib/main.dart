@@ -2,6 +2,7 @@ import 'package:event_app/controllers/event_controller.dart';
 import 'package:event_app/controllers/navigation_controller.dart';
 import 'package:event_app/routes/app_routes.dart';
 import 'package:event_app/services/storage_service.dart';
+import 'package:event_app/services/sync_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -21,7 +22,12 @@ Future<void> main() async {
     statusBarColor: Colors.transparent,
   ));
   
-  // Registrar controladores globales
+  // Inicializar el servicio de sincronización
+  final syncService = SyncService();
+  await syncService.init();
+  
+  // Registrar servicios y controladores globales
+  Get.put(syncService);
   Get.put(NavigationController());
   Get.put(EventController());
   

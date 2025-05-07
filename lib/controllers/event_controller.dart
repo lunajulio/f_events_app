@@ -3,7 +3,8 @@ import 'package:get/get.dart';
 import '../models/event.dart';
 import '../data/eventlist.dart';
 import '../models/review.dart';
-import '../services/storage_service.dart'; // Añadida la importación faltante
+import '../services/storage_service.dart';
+import '../services/sync_service.dart'; // Importar el servicio de sincronización
 
 class EventController extends GetxController {
   // Variables observables
@@ -16,6 +17,9 @@ class EventController extends GetxController {
   final RxList<Event> _searchResults = <Event>[].obs;
   final RxString _searchQuery = ''.obs;
   final RxString _selectedCategory = 'All Event'.obs;
+
+  // Servicio de sincronización
+  late SyncService _syncService;
 
   // Getters
   List<Event> get allEvents => _allEvents;
@@ -60,6 +64,7 @@ class EventController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _syncService = Get.find<SyncService>();
     loadEvents();
     loadFeaturedEvents();
     loadRecommendedEvents();
@@ -165,48 +170,47 @@ class EventController extends GetxController {
       createdAt: DateTime.now(),
     );
 
-    // No es necesario agregar manualmente la revisión aquí, StorageService
-    // ya lo hace y actualiza el objeto event
-    StorageService.addReviewToEvent(event.id, review);
-    
-    // Obtener el evento actualizado de Hive
-    final updatedEvent = StorageService.getEvent(event.id);
-    if (updatedEvent != null) {
-      // Actualizar las referencias locales con la versión guardada
-      int index = _allEvents.indexWhere((e) => e.id == event.id);
-      if (index >= 0) {
-        _allEvents[index] = updatedEvent;
-      }
+    try {
+      // Añadir la reseña directamente al evento usando el nuevo método
+      event.addReview(review);
       
-      // Actualizar también en otras listas si existe
-      index = _featuredEvents.indexWhere((e) => e.id == event.id);
-      if (index >= 0) {
-        _featuredEvents[index] = updatedEvent;
-      }
+      // Guardar en storage local
+      StorageService.saveEvent(event);
       
-      index = _recommendedEvents.indexWhere((e) => e.id == event.id);
-      if (index >= 0) {
-        _recommendedEvents[index] = updatedEvent;
-      }
+      // Sincronizar con el servidor
+      _syncService.addReview(event.id, review)
+          .then((success) {
+            if (!success) {
+              print('⚠️ La reseña se guardó localmente pero falló la sincronización con el servidor');
+            } else {
+              print('✅ Reseña sincronizada correctamente con el servidor');
+            }
+          });
       
-      index = _subscribedEvents.indexWhere((e) => e.id == event.id);
-      if (index >= 0) {
-        _subscribedEvents[index] = updatedEvent;
-      }
-    }
+      // Actualizar la UI
+      update();
 
-    // Actualizar la UI
-    update();
-
-    // Mostrar un snackbar de confirmación si está habilitado
-    if (showSnackbar) {
-      Get.snackbar(
-        'Éxito',
-        'Tu reseña ha sido agregada',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-      );
+      // Mostrar un snackbar de confirmación si está habilitado
+      if (showSnackbar) {
+        Get.snackbar(
+          'Éxito',
+          'Tu reseña ha sido agregada',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      print('Error al añadir reseña: $e');
+      if (showSnackbar) {
+        Get.snackbar(
+          'Error',
+          'No se pudo agregar tu reseña',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
     }
   }
 
@@ -253,5 +257,43 @@ class EventController extends GetxController {
     _searchQuery.value = '';
     _searchResults.clear();
     update();
+  }
+
+  // Método para recargar eventos desde el almacenamiento después de sincronización
+  void refreshEvents() {
+    // Cargar eventos actualizados desde Hive
+    final storedEvents = StorageService.getAllEvents();
+    
+    // Actualizar la lista principal de eventos
+    _allEvents.clear();
+    _allEvents.addAll(storedEvents);
+    
+    // Actualizar listas derivadas
+    loadFeaturedEvents();
+    loadRecommendedEvents();
+    _loadSubscribedEvents();
+    
+    // Notificar a las vistas que deben actualizarse
+    update();
+    
+    print('♻️ Eventos recargados desde almacenamiento: ${_allEvents.length} eventos');
+  }
+
+  // Método para limpiar todos los eventos de Hive y actualizar las listas
+  Future<void> clearAllEvents() async {
+    // Limpiar eventos en Hive
+    await StorageService.clearAllEvents();
+    
+    // Limpiar listas en memoria
+    _allEvents.clear();
+    _featuredEvents.clear();
+    _recommendedEvents.clear();
+    _subscribedEvents.clear();
+    _subscribedEventIds.clear();
+    
+    // Notificar a todas las vistas
+    update();
+    
+    print('🧹 Todos los eventos han sido eliminados.');
   }
 }

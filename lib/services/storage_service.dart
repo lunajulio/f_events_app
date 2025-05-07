@@ -25,8 +25,8 @@ class StorageService {
   static Future<void> saveAllEvents(List<Event> events) async {
     final box = Hive.box<Event>(eventsBox);
     
-    // Limpia los eventos existentes y añade los nuevos
-    await box.clear();
+    // En lugar de limpiar la caja y volver a añadir todo,
+    // actualizaremos solo los eventos que han cambiado o son nuevos
     for (var event in events) {
       // Preparar el evento para guardar
       event.beforeSave();
@@ -135,21 +135,19 @@ class StorageService {
       // Restaurar las propiedades reactivas
       event.afterLoad();
       
-      // Añadir reseña y actualizar calificación
-      event.reviews.add(review);
+      // Usar el nuevo método addReview para manejar correctamente la lista reactiva
+      event.addReview(review);
       
-      // Actualizar calificación
-      double totalRating = 0;
-      for (var r in event.reviews) {
-        totalRating += r.rating;
-      }
-      
-      event.rating.value = event.reviews.isEmpty ? 0 : totalRating / event.reviews.length;
-      event.totalRatings = event.reviews.length;
-      
-      // Preparar para guardar
-      event.beforeSave();
+      // El método addReview ya actualiza el rating y ejecuta beforeSave
+      // Solo necesitamos guardar el evento
       await box.put(eventId, event);
     }
+  }
+  
+  // Eliminar todos los eventos almacenados
+  static Future<void> clearAllEvents() async {
+    final box = Hive.box<Event>(eventsBox);
+    await box.clear();
+    print('🗑️ Todos los eventos han sido eliminados del almacenamiento local.');
   }
 }
